@@ -1,0 +1,116 @@
+name: 构建并发布 Release
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（例如：v1.0.0）'
+        required: true
+        default: 'v1.0.0'
+  
+  # 推送标签时自动触发
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  # macOS 构建任务
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建应用
+        run: npm run build:mac
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: release/*.dmg
+          retention-days: 5
+
+  # 创建 Release
+  create-release:
+    needs: build-macos
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-dmg
+          path: ./artifacts
+
+      - name: 获取版本号
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 生成更新日志
+        id: changelog
+        run: |
+          # 获取最近的提交信息
+          git log --pretty=format:"- %s" -10 > CHANGELOG.txt
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: 知识库管理 ${{ steps.get_version.outputs.version }}
+          body: |
+            ## 🎉 知识库管理应用 ${{ steps.get_version.outputs.version }}
+            
+            ### 📦 下载
+            
+            - **macOS (M1/M2)**: 下载 `.dmg` 文件
+            
+            ### ✨ 更新内容
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### 📝 说明
+            
+            - macOS 用户：下载 DMG 文件，双击安装
+            - 首次打开可能需要在系统设置中允许运行
+            - 数据存储在本地，安全可靠
+            
+            ### 🌐 在线体验
+            
+            不想下载？可以直接使用 Web 版本：
+            https://leexiaohui1997.github.io/knowledgebase/
+            
+            ### 📚 文档
+            
+            - [使用指南](https://github.com/leexiaohui1997/knowledgebase/blob/main/README.md)
+            - [功能特性](https://github.com/leexiaohui1997/knowledgebase/blob/main/docs/FEATURES.md)
+          files: |
+            artifacts/*.dmg
+          draft: false
+          prerelease: false
+

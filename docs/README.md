@@ -15,6 +15,7 @@
 | [FEATURES.md](./FEATURES.md) | 功能特性列表 |
 | [DUAL_BUILD.md](./DUAL_BUILD.md) | 🆕 双版本构建指南（Electron + Web） |
 | [GITHUB_PAGES_DEPLOYMENT.md](./GITHUB_PAGES_DEPLOYMENT.md) | 🚀 GitHub Pages 部署指南 |
+| [RELEASE_GUIDE.md](./RELEASE_GUIDE.md) | 📦 GitHub Release 发布指南 |
 
 ### 🛠️ 功能实现
 

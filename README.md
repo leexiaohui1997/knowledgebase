@@ -99,6 +99,18 @@ git push origin main
 
 详见：[GitHub Pages 部署指南](./docs/GITHUB_PAGES_DEPLOYMENT.md)
 
+#### 发布 macOS 版本到 GitHub Release
+
+```bash
+# 创建版本标签
+git tag v1.0.0
+
+# 推送标签（自动触发构建和发布）
+git push origin v1.0.0
+```
+
+详见：[Release 发布指南](./docs/RELEASE_GUIDE.md) | [快速发布](./RELEASE_QUICK_START.md)
+
 ## 🌐 双版本支持
 
 本项目支持两种运行方式：
