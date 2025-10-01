@@ -5,6 +5,7 @@ import { useKnowledgeStore } from '@/stores/knowledge'
 import DocumentTree from '@/components/DocumentTree.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
 import type { DocumentNode } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -16,6 +17,7 @@ const knowledgeBaseId = computed(() => route.params.id as string)
 const isLoading = ref(false)
 const showCreateModal = ref(false)
 const showRenameModal = ref(false)
+const showSettings = ref(false)
 const renamingNode = ref<DocumentNode | null>(null)
 const renameInput = ref('')
 const createForm = ref({
@@ -315,10 +317,15 @@ if (import.meta.env.DEV) {
         <span class="kb-avatar">{{ store.currentKnowledgeBase?.avatar }}</span>
         <h1>{{ store.currentKnowledgeBase?.name }}</h1>
       </div>
-      <button @click="openCreateModal(null)" class="btn-primary">
-        <font-awesome-icon :icon="['fas', 'plus']" />
-        新建
-      </button>
+      <div class="header-right">
+        <button @click="openCreateModal(null)" class="btn-primary">
+          <font-awesome-icon :icon="['fas', 'plus']" />
+          新建
+        </button>
+        <button @click="showSettings = true" class="btn-settings" title="设置">
+          <font-awesome-icon :icon="['fas', 'gear']" />
+        </button>
+      </div>
     </header>
 
     <div class="content">
@@ -432,6 +439,9 @@ if (import.meta.env.DEV) {
       </div>
     </div>
   </div>
+
+  <!-- 设置弹窗 -->
+  <SettingsModal :show="showSettings" @close="showSettings = false" />
 </template>
 
 <style scoped>
@@ -484,6 +494,34 @@ if (import.meta.env.DEV) {
   font-size: 20px;
   font-weight: 600;
   color: #333;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-settings {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.btn-settings:hover {
+  background-color: #f5f5f5;
+  border-color: #42b883;
+  color: #42b883;
 }
 
 .content {

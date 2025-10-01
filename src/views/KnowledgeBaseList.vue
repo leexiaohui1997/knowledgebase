@@ -3,6 +3,7 @@ import { ref, computed, onMounted, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { useKnowledgeStore } from '@/stores/knowledge'
 import ContextMenu from '@/components/ContextMenu.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
 import type { KnowledgeBase } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -12,6 +13,7 @@ const store = useKnowledgeStore()
 const searchQuery = ref('')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const showSettings = ref(false)
 const editingKnowledgeBase = ref<KnowledgeBase | null>(null)
 const formData = ref({
   name: '',
@@ -173,6 +175,9 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
             <font-awesome-icon :icon="['fas', 'plus']" />
             创建知识库
           </button>
+          <button @click="showSettings = true" class="btn-settings" title="设置">
+            <font-awesome-icon :icon="['fas', 'gear']" />
+          </button>
         </div>
       </div>
     </header>
@@ -297,6 +302,9 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
       </div>
     </div>
   </div>
+
+  <!-- 设置弹窗 -->
+  <SettingsModal :show="showSettings" @close="showSettings = false" />
 </template>
 
 <style scoped>
@@ -499,6 +507,28 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
 
 .btn-primary:hover {
   background-color: #33a06f;
+}
+
+.btn-settings {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.btn-settings:hover {
+  background-color: #f5f5f5;
+  border-color: #42b883;
+  color: #42b883;
 }
 
 .btn-secondary {

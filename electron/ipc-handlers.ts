@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import { readData, writeData } from './storage'
-import { saveImage, readImage, deleteImage, getImagePath } from './image-storage'
+import { saveImage, readImage, deleteImage, getImagePath, getAllImages, cleanupImages } from './image-storage'
 
 // 注册 IPC 处理器
 export function registerIpcHandlers() {
@@ -98,6 +98,44 @@ export function registerIpcHandlers() {
   // 获取图片路径
   ipcMain.handle('get-image-path', (_, fileName) => {
     return getImagePath(fileName)
+  })
+
+  // 获取未使用的图片
+  ipcMain.handle('get-unused-images', () => {
+    const data = readData()
+    const allDocuments = data.documents || []
+    
+    // 获取所有存储的图片
+    const allImages = getAllImages()
+    
+    // 提取所有文档中引用的图片
+    const usedImages = new Set<string>()
+    const imageRegex = /!\[([^\]]*)\]\(local-image:\/\/([^)]+)\)/g
+    
+    allDocuments.forEach((doc: any) => {
+      if (doc.content) {
+        let match
+        // 重置正则的 lastIndex
+        imageRegex.lastIndex = 0
+        while ((match = imageRegex.exec(doc.content)) !== null) {
+          usedImages.add(match[2])
+        }
+      }
+    })
+    
+    // 找出未使用的图片
+    const unusedImages = allImages.filter(image => !usedImages.has(image))
+    
+    // 返回带 local-image:// 前缀的路径
+    return unusedImages.map(image => `local-image://${image}`)
+  })
+
+  // 清理未使用的图片
+  ipcMain.handle('cleanup-unused-images', (_, imagePaths: string[]) => {
+    // 提取文件名（去掉 local-image:// 前缀）
+    const fileNames = imagePaths.map(path => path.replace('local-image://', ''))
+    const deletedCount = cleanupImages(fileNames)
+    return deletedCount
   })
 }
 

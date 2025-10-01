@@ -28,7 +28,15 @@ import {
   faBullseye,
   faBolt,
   faFire,
-  faBriefcase
+  faBriefcase,
+  faGear,
+  faXmark,
+  faSliders,
+  faBroom,
+  faSpinner,
+  faImage,
+  faTriangleExclamation,
+  faCircleExclamation
 } from '@fortawesome/free-solid-svg-icons'
 
 // 添加图标到库
@@ -53,7 +61,15 @@ library.add(
   faBullseye,
   faBolt,
   faFire,
-  faBriefcase
+  faBriefcase,
+  faGear,
+  faXmark,
+  faSliders,
+  faBroom,
+  faSpinner,
+  faImage,
+  faTriangleExclamation,
+  faCircleExclamation
 )
 
 const app = createApp(App)

@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveImage: (base64Data: string, knowledgeBaseId: string) => ipcRenderer.invoke('save-image', base64Data, knowledgeBaseId),
   readImage: (fileName: string) => ipcRenderer.invoke('read-image', fileName),
   deleteImage: (fileName: string) => ipcRenderer.invoke('delete-image', fileName),
-  getImagePath: (fileName: string) => ipcRenderer.invoke('get-image-path', fileName)
+  getImagePath: (fileName: string) => ipcRenderer.invoke('get-image-path', fileName),
+  // 图片清理操作
+  getUnusedImages: () => ipcRenderer.invoke('get-unused-images'),
+  cleanupUnusedImages: (imagePaths: string[]) => ipcRenderer.invoke('cleanup-unused-images', imagePaths)
 })
 

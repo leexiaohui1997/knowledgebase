@@ -29,5 +29,8 @@ interface Window {
     readImage: (fileName: string) => Promise<string | null>
     deleteImage: (fileName: string) => Promise<boolean>
     getImagePath: (fileName: string) => Promise<string>
+    // 图片清理操作
+    getUnusedImages: () => Promise<string[]>
+    cleanupUnusedImages: (imagePaths: string[]) => Promise<number>
   }
 }

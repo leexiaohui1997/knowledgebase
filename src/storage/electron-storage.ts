@@ -62,5 +62,15 @@ export class ElectronStorage implements IStorage {
   async deleteImage(imagePath: string): Promise<void> {
     await this.api.deleteImage(imagePath)
   }
+
+  // ==================== 图片清理操作 ====================
+
+  async getUnusedImages(): Promise<string[]> {
+    return this.api.getUnusedImages()
+  }
+
+  async cleanupUnusedImages(imagePaths: string[]): Promise<void> {
+    await this.api.cleanupUnusedImages(imagePaths)
+  }
 }
 

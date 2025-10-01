@@ -88,3 +88,28 @@ export function getImagePath(fileName: string): string {
   return path.join(imagesPath, fileName)
 }
 
+// 获取所有图片文件列表
+export function getAllImages(): string[] {
+  try {
+    const imagesPath = getImagesPath()
+    const files = fs.readdirSync(imagesPath)
+    // 过滤出图片文件
+    return files.filter(file => /\.(png|jpg|jpeg|gif|webp)$/i.test(file))
+  } catch (error) {
+    console.error('Error getting all images:', error)
+    return []
+  }
+}
+
+// 批量删除图片
+export function cleanupImages(fileNames: string[]): number {
+  let deletedCount = 0
+  for (const fileName of fileNames) {
+    if (deleteImage(fileName)) {
+      deletedCount++
+    }
+  }
+  console.log(`Cleaned up ${deletedCount} images`)
+  return deletedCount
+}
+

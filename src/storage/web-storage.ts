@@ -211,5 +211,61 @@ export class WebStorage implements IStorage {
       request.onerror = () => reject(request.error)
     })
   }
+
+  // ==================== 图片清理操作 ====================
+
+  async getUnusedImages(): Promise<string[]> {
+    const db = await this.initDB()
+    
+    // 获取所有存储的图片
+    const allImages = await new Promise<string[]>((resolve, reject) => {
+      const transaction = db.transaction([STORE_IMAGES], 'readonly')
+      const store = transaction.objectStore(STORE_IMAGES)
+      const request = store.getAllKeys()
+
+      request.onsuccess = () => {
+        const keys = request.result as string[]
+        resolve(keys.map(key => `local-image://${key}`))
+      }
+      request.onerror = () => reject(request.error)
+    })
+
+    // 获取所有文档内容
+    const data = await this.readData()
+    const allDocuments: DocumentNode[] = []
+    
+    // 收集所有文档
+    Object.values(data.documents).forEach(docs => {
+      allDocuments.push(...docs)
+    })
+
+    // 提取所有文档中引用的图片
+    const usedImages = new Set<string>()
+    const imageRegex = /!\[([^\]]*)\]\((local-image:\/\/[^)]+)\)/g
+    
+    allDocuments.forEach(doc => {
+      if (doc.content) {
+        let match
+        while ((match = imageRegex.exec(doc.content)) !== null) {
+          usedImages.add(match[2])
+        }
+      }
+    })
+
+    // 找出未使用的图片
+    const unusedImages = allImages.filter(image => !usedImages.has(image))
+    
+    return unusedImages
+  }
+
+  async cleanupUnusedImages(imagePaths: string[]): Promise<void> {
+    for (const imagePath of imagePaths) {
+      try {
+        await this.deleteImage(imagePath)
+      } catch (error) {
+        console.error('删除图片失败:', imagePath, error)
+      }
+    }
+  }
 }
 
