@@ -28,6 +28,7 @@
 | [CHERRY_MARKDOWN.md](./CHERRY_MARKDOWN.md) | Cherry Markdown 编辑器集成 |
 | [FONT_AWESOME.md](./FONT_AWESOME.md) | Font Awesome 图标库集成 |
 | [CUSTOM_ICON.md](./CUSTOM_ICON.md) | 自定义应用图标指南 |
+| [SETTINGS_FEATURE.md](./SETTINGS_FEATURE.md) | ⚙️ 设置功能和图片清理 |
 
 ### 🐛 问题修复
 
