@@ -46,13 +46,25 @@ npm install
 
 ### 开发模式
 
+#### Electron 桌面版（默认）
+
 ```bash
 npm run electron:dev
 ```
 
 这将启动 Vite 开发服务器和 Electron 应用，支持热重载。
 
+#### Web 浏览器版
+
+```bash
+npm run dev:web
+```
+
+访问 `http://localhost:5173` 即可在浏览器中使用。
+
 ### 构建应用
+
+#### Electron 桌面版
 
 ```bash
 # 为 macOS M1 构建
@@ -64,9 +76,33 @@ npm run build:mac:check
 
 构建完成后，应用程序将在 `release` 目录中生成。
 
+#### Web 浏览器版
+
+```bash
+# 构建 Web 版
+npm run build:web
+
+# 预览构建结果
+npm run preview:web
+```
+
+构建完成后，静态文件将在 `dist-web` 目录中生成，可部署到任何静态网站托管服务。
+
+## 🌐 双版本支持
+
+本项目支持两种运行方式：
+
+1. **Electron 桌面版** - 使用本地文件系统存储，完整的桌面应用体验
+2. **Web 浏览器版** - 使用 IndexedDB 存储，无需安装即可使用
+
+通过**存储抽象层**设计，两个版本共享相同的代码库，根据运行环境自动选择合适的存储方案。
+
+详见：[双版本构建指南](./docs/DUAL_BUILD.md)
+
 ## 📚 完整文档
 
 查看 **[docs/](./docs/)** 目录获取所有详细文档：
+- [双版本构建指南](./docs/DUAL_BUILD.md) - Electron 版 vs Web 版
 - 功能实现文档
 - 问题修复记录
 - 测试与调试指南

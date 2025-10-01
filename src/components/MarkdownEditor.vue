@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Cherry from 'cherry-markdown'
 import 'cherry-markdown/dist/cherry-markdown.css'
+import { getStorage } from '@/storage'
 
 const props = defineProps<{
   content: string
@@ -11,6 +12,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const knowledgeBaseId = computed(() => route.params.id as string)
+const storage = getStorage()
 
 const emit = defineEmits<{
   save: [content: string]
@@ -35,7 +37,7 @@ async function loadImagesForDisplay(content: string): Promise<string> {
     
     try {
       // 读取图片的 base64 数据
-      const base64Data = await window.electronAPI.readImage(fileName)
+      const base64Data = await storage.readImage(fileName)
       if (base64Data) {
         // 存储映射关系：路径 -> base64 数据
         imageMapping.set(imagePath, base64Data)
@@ -93,8 +95,8 @@ async function initEditor() {
           const base64Data = e.target?.result as string
           console.log('Uploading image, size:', Math.round(base64Data.length / 1024), 'KB')
           
-          // 调用 Electron API 保存图片到本地
-          const fileName = await window.electronAPI.saveImage(base64Data, knowledgeBaseId.value)
+          // 调用存储 API 保存图片到本地
+          const fileName = await storage.saveImage(knowledgeBaseId.value, base64Data)
           console.log('Image saved as:', fileName)
           
           // 存储映射关系：路径 -> base64

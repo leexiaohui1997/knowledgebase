@@ -1,0 +1,215 @@
+/**
+ * Web 版存储实现（使用 IndexedDB）
+ */
+
+import type { IStorage, StorageData } from './types'
+import type { KnowledgeBase, DocumentNode } from '../types'
+
+const DB_NAME = 'KnowledgeBaseDB'
+const DB_VERSION = 1
+const STORE_DATA = 'data' // 存储知识库和文档数据
+const STORE_IMAGES = 'images' // 存储图片
+
+export class WebStorage implements IStorage {
+  private db: IDBDatabase | null = null
+
+  /**
+   * 初始化数据库
+   */
+  private async initDB(): Promise<IDBDatabase> {
+    if (this.db) {
+      return this.db
+    }
+
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION)
+
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => {
+        this.db = request.result
+        resolve(request.result)
+      }
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result
+
+        // 创建数据存储对象仓库
+        if (!db.objectStoreNames.contains(STORE_DATA)) {
+          db.createObjectStore(STORE_DATA, { keyPath: 'id' })
+        }
+
+        // 创建图片存储对象仓库
+        if (!db.objectStoreNames.contains(STORE_IMAGES)) {
+          db.createObjectStore(STORE_IMAGES, { keyPath: 'id' })
+        }
+      }
+    })
+  }
+
+  /**
+   * 读取数据
+   */
+  private async readData(): Promise<StorageData> {
+    const db = await this.initDB()
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_DATA], 'readonly')
+      const store = transaction.objectStore(STORE_DATA)
+      const request = store.get('main')
+
+      request.onsuccess = () => {
+        const data = request.result?.data || { knowledgeBases: [], documents: {} }
+        resolve(data)
+      }
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  /**
+   * 写入数据
+   */
+  private async writeData(data: StorageData): Promise<void> {
+    const db = await this.initDB()
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_DATA], 'readwrite')
+      const store = transaction.objectStore(STORE_DATA)
+      const request = store.put({ id: 'main', data })
+
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  // ==================== 知识库操作 ====================
+
+  async getKnowledgeBases(): Promise<KnowledgeBase[]> {
+    const data = await this.readData()
+    return data.knowledgeBases
+  }
+
+  async createKnowledgeBase(kb: KnowledgeBase): Promise<void> {
+    const data = await this.readData()
+    data.knowledgeBases.push(kb)
+    await this.writeData(data)
+  }
+
+  async updateKnowledgeBase(kb: KnowledgeBase): Promise<void> {
+    const data = await this.readData()
+    const index = data.knowledgeBases.findIndex(k => k.id === kb.id)
+    if (index !== -1) {
+      data.knowledgeBases[index] = kb
+      await this.writeData(data)
+    }
+  }
+
+  async deleteKnowledgeBase(id: string): Promise<void> {
+    const data = await this.readData()
+    data.knowledgeBases = data.knowledgeBases.filter(k => k.id !== id)
+    delete data.documents[id]
+    await this.writeData(data)
+  }
+
+  // ==================== 文档操作 ====================
+
+  async getDocuments(knowledgeBaseId: string): Promise<DocumentNode[]> {
+    const data = await this.readData()
+    return data.documents[knowledgeBaseId] || []
+  }
+
+  async createDocument(knowledgeBaseId: string, doc: DocumentNode): Promise<void> {
+    const data = await this.readData()
+    if (!data.documents[knowledgeBaseId]) {
+      data.documents[knowledgeBaseId] = []
+    }
+    data.documents[knowledgeBaseId].push(doc)
+    await this.writeData(data)
+  }
+
+  async updateDocument(knowledgeBaseId: string, doc: DocumentNode): Promise<void> {
+    const data = await this.readData()
+    const docs = data.documents[knowledgeBaseId] || []
+    const index = docs.findIndex(d => d.id === doc.id)
+    if (index !== -1) {
+      docs[index] = doc
+      await this.writeData(data)
+    }
+  }
+
+  async deleteDocument(knowledgeBaseId: string, docId: string): Promise<void> {
+    const data = await this.readData()
+    const docs = data.documents[knowledgeBaseId] || []
+    
+    // 递归删除函数
+    const deleteRecursive = (nodes: DocumentNode[], id: string): DocumentNode[] => {
+      return nodes.filter(node => {
+        if (node.id === id) return false
+        if (node.children) {
+          node.children = deleteRecursive(node.children, id)
+        }
+        return true
+      })
+    }
+    
+    data.documents[knowledgeBaseId] = deleteRecursive(docs, docId)
+    await this.writeData(data)
+  }
+
+  // ==================== 图片操作 ====================
+
+  async saveImage(knowledgeBaseId: string, imageData: string): Promise<string> {
+    const db = await this.initDB()
+    
+    // 生成唯一 ID
+    const imageId = `${knowledgeBaseId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_IMAGES], 'readwrite')
+      const store = transaction.objectStore(STORE_IMAGES)
+      const request = store.put({ id: imageId, data: imageData })
+
+      request.onsuccess = () => resolve(`local-image://${imageId}`)
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async readImage(imagePath: string): Promise<string> {
+    const db = await this.initDB()
+    
+    // 提取 imageId
+    const imageId = imagePath.replace('local-image://', '')
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_IMAGES], 'readonly')
+      const store = transaction.objectStore(STORE_IMAGES)
+      const request = store.get(imageId)
+
+      request.onsuccess = () => {
+        const result = request.result
+        if (result && result.data) {
+          resolve(result.data)
+        } else {
+          reject(new Error('Image not found'))
+        }
+      }
+      request.onerror = () => reject(request.error)
+    })
+  }
+
+  async deleteImage(imagePath: string): Promise<void> {
+    const db = await this.initDB()
+    
+    // 提取 imageId
+    const imageId = imagePath.replace('local-image://', '')
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_IMAGES], 'readwrite')
+      const store = transaction.objectStore(STORE_IMAGES)
+      const request = store.delete(imageId)
+
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+    })
+  }
+}
+

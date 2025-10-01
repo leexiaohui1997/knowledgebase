@@ -577,14 +577,15 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
 
 .avatar-selector {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 .avatar-option {
-  font-size: 28px;
-  padding: 10px;
+  font-size: 24px;
+  padding: 8px;
   text-align: center;
   cursor: pointer;
   border-radius: 8px;
@@ -594,6 +595,9 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
   align-items: center;
   justify-content: center;
   aspect-ratio: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .avatar-option:hover {

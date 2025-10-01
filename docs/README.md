@@ -13,6 +13,7 @@
 | [QUICK_START.md](./QUICK_START.md) | 快速开始指南 |
 | [USAGE.md](./USAGE.md) | 应用使用说明 |
 | [FEATURES.md](./FEATURES.md) | 功能特性列表 |
+| [DUAL_BUILD.md](./DUAL_BUILD.md) | 🆕 双版本构建指南（Electron + Web） |
 
 ### 🛠️ 功能实现
 

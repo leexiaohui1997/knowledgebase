@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, toRaw } from 'vue'
 import type { KnowledgeBase, DocumentNode } from '@/types'
+import { getStorage } from '@/storage'
 
 export const useKnowledgeStore = defineStore('knowledge', () => {
+  const storage = getStorage()
   const knowledgeBases = ref<KnowledgeBase[]>([])
   const currentKnowledgeBase = ref<KnowledgeBase | null>(null)
   const documents = ref<DocumentNode[]>([])
@@ -10,7 +12,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
 
   // 加载所有知识库
   async function loadKnowledgeBases() {
-    knowledgeBases.value = await window.electronAPI.getKnowledgeBases()
+    knowledgeBases.value = await storage.getKnowledgeBases()
   }
 
   // 创建知识库
@@ -21,7 +23,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       createdAt: Date.now(),
       updatedAt: Date.now()
     }
-    await window.electronAPI.createKnowledgeBase(toRaw(kb))
+    await storage.createKnowledgeBase(toRaw(kb))
     knowledgeBases.value.push(kb)
     return kb
   }
@@ -29,7 +31,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
   // 更新知识库
   async function updateKnowledgeBase(kb: KnowledgeBase) {
     kb.updatedAt = Date.now()
-    await window.electronAPI.updateKnowledgeBase(toRaw(kb))
+    await storage.updateKnowledgeBase(toRaw(kb))
     const index = knowledgeBases.value.findIndex(item => item.id === kb.id)
     if (index !== -1) {
       knowledgeBases.value[index] = kb
@@ -38,13 +40,13 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
 
   // 删除知识库
   async function deleteKnowledgeBase(id: string) {
-    await window.electronAPI.deleteKnowledgeBase(id)
+    await storage.deleteKnowledgeBase(id)
     knowledgeBases.value = knowledgeBases.value.filter(kb => kb.id !== id)
   }
 
   // 加载知识库的文档
   async function loadDocuments(knowledgeBaseId: string) {
-    documents.value = await window.electronAPI.getDocuments(knowledgeBaseId)
+    documents.value = await storage.getDocuments(knowledgeBaseId)
     
     console.log(`Loaded ${documents.value.length} documents for knowledge base ${knowledgeBaseId}`)
     
@@ -100,7 +102,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       for (const doc of documents.value) {
         if (doc.order !== undefined) {
           // 使用 toRaw 转换为普通对象，避免 Proxy 序列化错误
-          await window.electronAPI.updateDocument(toRaw(doc))
+          await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(doc))
         }
       }
     }
@@ -120,7 +122,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       createdAt: Date.now(),
       updatedAt: Date.now()
     }
-    await window.electronAPI.createDocument(toRaw(doc))
+    await storage.createDocument(data.knowledgeBaseId, toRaw(doc))
     documents.value.push(doc)
     return doc
   }
@@ -128,7 +130,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
   // 更新文档节点
   async function updateDocument(doc: DocumentNode) {
     doc.updatedAt = Date.now()
-    await window.electronAPI.updateDocument(toRaw(doc))
+    await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(doc))
     const index = documents.value.findIndex(item => item.id === doc.id)
     if (index !== -1) {
       documents.value[index] = doc
@@ -137,7 +139,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
 
   // 删除文档节点
   async function deleteDocument(id: string) {
-    await window.electronAPI.deleteDocument(id)
+    await storage.deleteDocument(currentKnowledgeBase.value?.id || '', id)
     documents.value = documents.value.filter(doc => doc.id !== id && doc.parentId !== id)
   }
 
@@ -173,7 +175,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
     doc.parentId = newParentId
     doc.order = newOrder
     doc.updatedAt = Date.now()
-    await window.electronAPI.updateDocument(toRaw(doc))
+    await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(doc))
 
     // 如果改变了父节点，需要重排旧父节点下的其他节点
     if (oldParentId !== newParentId) {
@@ -182,7 +184,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       for (let i = 0; i < oldSiblings.length; i++) {
         oldSiblings[i].order = i + 1
         oldSiblings[i].updatedAt = Date.now()
-        await window.electronAPI.updateDocument(toRaw(oldSiblings[i]))
+        await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(oldSiblings[i]))
       }
     }
 
@@ -200,7 +202,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       if (newSiblings[i].order !== i + 1) {
         newSiblings[i].order = i + 1
         newSiblings[i].updatedAt = Date.now()
-        await window.electronAPI.updateDocument(toRaw(newSiblings[i]))
+        await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(newSiblings[i]))
       }
     }
 
@@ -219,7 +221,7 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
       if (orderedNodes[i].order !== i + 1) {
         orderedNodes[i].order = i + 1
         orderedNodes[i].updatedAt = Date.now()
-        await window.electronAPI.updateDocument(toRaw(orderedNodes[i]))
+        await storage.updateDocument(currentKnowledgeBase.value?.id || '', toRaw(orderedNodes[i]))
       }
     }
 
