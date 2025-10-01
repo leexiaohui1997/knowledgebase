@@ -95,15 +95,14 @@ async function initEditor() {
           const base64Data = e.target?.result as string
           console.log('Uploading image, size:', Math.round(base64Data.length / 1024), 'KB')
           
-          // 调用存储 API 保存图片到本地
-          const fileName = await storage.saveImage(knowledgeBaseId.value, base64Data)
-          console.log('Image saved as:', fileName)
+          // 调用存储 API 保存图片到本地（返回值已包含 local-image:// 前缀）
+          const imagePath = await storage.saveImage(knowledgeBaseId.value, base64Data)
+          console.log('Image saved as:', imagePath)
           
           // 存储映射关系：路径 -> base64
-          const imagePath = `local-image://${fileName}`
           imageMapping.set(imagePath, base64Data.split(',')[1])  // 只存储 base64 数据部分
           
-          // 返回 local-image:// 路径，让编辑器显示路径
+          // 返回路径（已包含 local-image:// 前缀）
           console.log('Inserting image path:', imagePath)
           callback(imagePath)
         } catch (error) {

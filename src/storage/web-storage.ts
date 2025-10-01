@@ -241,16 +241,20 @@ export class WebStorage implements IStorage {
 
     // 提取所有文档中引用的图片
     const usedImages = new Set<string>()
-    const imageRegex = /!\[([^\]]*)\]\((local-image:\/\/[^)]+)\)/g
     
     allDocuments.forEach(doc => {
       if (doc.content) {
+        // 为每个文档创建新的正则表达式实例，避免 lastIndex 问题
+        const imageRegex = /!\[([^\]]*)\]\((local-image:\/\/[^)]+)\)/g
         let match
         while ((match = imageRegex.exec(doc.content)) !== null) {
           usedImages.add(match[2])
         }
       }
     })
+    
+    console.log('扫描结果 - 所有图片:', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
+    console.log('已使用的图片:', Array.from(usedImages))
 
     // 找出未使用的图片
     const unusedImages = allImages.filter(image => !usedImages.has(image))
