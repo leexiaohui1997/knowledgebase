@@ -14,6 +14,7 @@
 | [USAGE.md](./USAGE.md) | 应用使用说明 |
 | [FEATURES.md](./FEATURES.md) | 功能特性列表 |
 | [DUAL_BUILD.md](./DUAL_BUILD.md) | 🆕 双版本构建指南（Electron + Web） |
+| [GITHUB_PAGES_DEPLOYMENT.md](./GITHUB_PAGES_DEPLOYMENT.md) | 🚀 GitHub Pages 部署指南 |
 
 ### 🛠️ 功能实现
 

@@ -88,6 +88,17 @@ npm run preview:web
 
 构建完成后，静态文件将在 `dist-web` 目录中生成，可部署到任何静态网站托管服务。
 
+**部署到 GitHub Pages**：
+```bash
+# 自动部署（推荐）：推送代码到 main 分支即可自动部署
+git push origin main
+
+# 手动部署：运行部署脚本
+./deploy.sh
+```
+
+详见：[GitHub Pages 部署指南](./docs/GITHUB_PAGES_DEPLOYMENT.md)
+
 ## 🌐 双版本支持
 
 本项目支持两种运行方式：
