@@ -74,12 +74,10 @@ function getItemClass(item: SidebarItem) {
     <!-- 内容区域 -->
     <div class="sidebar-content">
       <slot name="content" :activeItem="activeItem">
-        <!-- 默认内容插槽 -->
-        <div v-if="activeItem === 'explorer'" class="explorer-content">
-          <slot name="explorer">
-            <!-- 文档目录内容 -->
-          </slot>
-        </div>
+        <!-- 默认内容插槽 - 直接渲染 explorer 插槽内容 -->
+        <slot name="explorer">
+          <!-- 文档目录内容 -->
+        </slot>
       </slot>
     </div>
   </div>
@@ -97,7 +95,7 @@ function getItemClass(item: SidebarItem) {
 
 /* 导航栏样式 */
 .sidebar-nav {
-  background: #f8f9fa;
+  background: white;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
