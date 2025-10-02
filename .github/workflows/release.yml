@@ -20,6 +20,9 @@ jobs:
     runs-on: macos-13
     timeout-minutes: 60
     
+    permissions:
+      contents: read
+    
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -47,6 +50,8 @@ jobs:
         run: npm run build:mac
         continue-on-error: false
         timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -64,6 +69,7 @@ jobs:
     
     permissions:
       contents: write
+      id-token: write
     
     steps:
       - name: 检出代码
