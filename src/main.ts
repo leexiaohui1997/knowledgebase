@@ -36,7 +36,11 @@ import {
   faSpinner,
   faImage,
   faTriangleExclamation,
-  faCircleExclamation
+  faCircleExclamation,
+  faCheck,
+  faExclamation,
+  faTimes,
+  faInfo
 } from '@fortawesome/free-solid-svg-icons'
 
 // 添加图标到库
@@ -69,7 +73,11 @@ library.add(
   faSpinner,
   faImage,
   faTriangleExclamation,
-  faCircleExclamation
+  faCircleExclamation,
+  faCheck,
+  faExclamation,
+  faTimes,
+  faInfo
 )
 
 const app = createApp(App)
