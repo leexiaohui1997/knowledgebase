@@ -409,30 +409,39 @@ if (import.meta.env.DEV) {
     <!-- 创建文档/文件夹弹窗 -->
     <div v-if="showCreateModal" class="modal-overlay" @click="showCreateModal = false">
       <div class="modal-content" @click.stop>
-        <h2>新建{{ createForm.type === 'file' ? '文件' : '文件夹' }}</h2>
-        <div class="form-group">
-          <label>类型</label>
-          <div class="type-selector">
-            <label class="radio-label">
-              <input type="radio" v-model="createForm.type" value="file" />
-              <span>📄 文件</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" v-model="createForm.type" value="folder" />
-              <span>📁 文件夹</span>
-            </label>
+        <!-- 头部 -->
+        <div class="modal-header">
+          <h2>新建{{ createForm.type === 'file' ? '文件' : '文件夹' }}</h2>
+        </div>
+        
+        <!-- 主体内容 -->
+        <div class="modal-body">
+          <div class="form-group">
+            <label>类型</label>
+            <div class="type-selector">
+              <label class="radio-label">
+                <input type="radio" v-model="createForm.type" value="file" />
+                <span>📄 文件</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" v-model="createForm.type" value="folder" />
+                <span>📁 文件夹</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>名称 *</label>
+            <input
+              v-model="createForm.name"
+              type="text"
+              :placeholder="`请输入${createForm.type === 'file' ? '文件' : '文件夹'}名称`"
+              class="form-input"
+              @keyup.enter="handleCreate"
+            />
           </div>
         </div>
-        <div class="form-group">
-          <label>名称 *</label>
-          <input
-            v-model="createForm.name"
-            type="text"
-            :placeholder="`请输入${createForm.type === 'file' ? '文件' : '文件夹'}名称`"
-            class="form-input"
-            @keyup.enter="handleCreate"
-          />
-        </div>
+        
+        <!-- 底部操作 -->
         <div class="modal-actions">
           <button @click="showCreateModal = false" class="btn-secondary">取消</button>
           <button @click="handleCreate" class="btn-primary">创建</button>
@@ -443,18 +452,27 @@ if (import.meta.env.DEV) {
     <!-- 重命名弹窗 -->
     <div v-if="showRenameModal" class="modal-overlay" @click="showRenameModal = false">
       <div class="modal-content" @click.stop>
-        <h2>重命名{{ renamingNode?.type === 'file' ? '文件' : '文件夹' }}</h2>
-        <div class="form-group">
-          <label>名称 *</label>
-          <input
-            v-model="renameInput"
-            type="text"
-            :placeholder="`请输入${renamingNode?.type === 'file' ? '文件' : '文件夹'}名称`"
-            class="form-input"
-            @keyup.enter="handleRename"
-            ref="renameInputRef"
-          />
+        <!-- 头部 -->
+        <div class="modal-header">
+          <h2>重命名{{ renamingNode?.type === 'file' ? '文件' : '文件夹' }}</h2>
         </div>
+        
+        <!-- 主体内容 -->
+        <div class="modal-body">
+          <div class="form-group">
+            <label>名称 *</label>
+            <input
+              v-model="renameInput"
+              type="text"
+              :placeholder="`请输入${renamingNode?.type === 'file' ? '文件' : '文件夹'}名称`"
+              class="form-input"
+              @keyup.enter="handleRename"
+              ref="renameInputRef"
+            />
+          </div>
+        </div>
+        
+        <!-- 底部操作 -->
         <div class="modal-actions">
           <button @click="showRenameModal = false" class="btn-secondary">取消</button>
           <button @click="handleRename" class="btn-primary">保存</button>
@@ -677,15 +695,39 @@ if (import.meta.env.DEV) {
 .modal-content {
   background: white;
   border-radius: 12px;
-  padding: 24px;
   width: 400px;
   max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.modal-content h2 {
+/* 弹窗头部 */
+.modal-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
   font-size: 18px;
-  margin-bottom: 20px;
+  margin: 0;
   color: #333;
+}
+
+/* 弹窗主体内容 */
+.modal-body {
+  flex: 1;
+  padding: 16px 24px;
+  overflow-y: auto;
+}
+
+/* 弹窗底部操作 */
+.modal-actions {
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .form-group {

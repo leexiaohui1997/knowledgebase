@@ -230,38 +230,47 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
     <!-- 创建知识库弹窗 -->
     <div v-if="showCreateModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <h2>创建知识库</h2>
-        <div class="form-group">
-          <label>名称 *</label>
-          <input
-            v-model="formData.name"
-            type="text"
-            placeholder="请输入知识库名称"
-            class="form-input"
-          />
+        <!-- 头部 -->
+        <div class="modal-header">
+          <h2>创建知识库</h2>
         </div>
-        <div class="form-group">
-          <label>头像</label>
-          <div class="avatar-selector">
-            <div
-              v-for="emoji in avatarOptions"
-              :key="emoji"
-              :class="['avatar-option', { active: formData.avatar === emoji }]"
-              @click="formData.avatar = emoji"
-            >
-              {{ emoji }}
+        
+        <!-- 主体内容 -->
+        <div class="modal-body">
+          <div class="form-group">
+            <label>名称 *</label>
+            <input
+              v-model="formData.name"
+              type="text"
+              placeholder="请输入知识库名称"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>头像</label>
+            <div class="avatar-selector">
+              <div
+                v-for="emoji in avatarOptions"
+                :key="emoji"
+                :class="['avatar-option', { active: formData.avatar === emoji }]"
+                @click="formData.avatar = emoji"
+              >
+                {{ emoji }}
+              </div>
             </div>
           </div>
+          <div class="form-group">
+            <label>简介</label>
+            <textarea
+              v-model="formData.description"
+              placeholder="请输入知识库简介"
+              class="form-textarea"
+              rows="3"
+            ></textarea>
+          </div>
         </div>
-        <div class="form-group">
-          <label>简介</label>
-          <textarea
-            v-model="formData.description"
-            placeholder="请输入知识库简介"
-            class="form-textarea"
-            rows="3"
-          ></textarea>
-        </div>
+        
+        <!-- 底部操作 -->
         <div class="modal-actions">
           <button @click="closeModal" class="btn-secondary">取消</button>
           <button @click="handleCreate" class="btn-primary">创建</button>
@@ -272,38 +281,47 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
     <!-- 编辑知识库弹窗 -->
     <div v-if="showEditModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
-        <h2>编辑知识库</h2>
-        <div class="form-group">
-          <label>名称 *</label>
-          <input
-            v-model="formData.name"
-            type="text"
-            placeholder="请输入知识库名称"
-            class="form-input"
-          />
+        <!-- 头部 -->
+        <div class="modal-header">
+          <h2>编辑知识库</h2>
         </div>
-        <div class="form-group">
-          <label>头像</label>
-          <div class="avatar-selector">
-            <div
-              v-for="emoji in avatarOptions"
-              :key="emoji"
-              :class="['avatar-option', { active: formData.avatar === emoji }]"
-              @click="formData.avatar = emoji"
-            >
-              {{ emoji }}
+        
+        <!-- 主体内容 -->
+        <div class="modal-body">
+          <div class="form-group">
+            <label>名称 *</label>
+            <input
+              v-model="formData.name"
+              type="text"
+              placeholder="请输入知识库名称"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>头像</label>
+            <div class="avatar-selector">
+              <div
+                v-for="emoji in avatarOptions"
+                :key="emoji"
+                :class="['avatar-option', { active: formData.avatar === emoji }]"
+                @click="formData.avatar = emoji"
+              >
+                {{ emoji }}
+              </div>
             </div>
           </div>
+          <div class="form-group">
+            <label>简介</label>
+            <textarea
+              v-model="formData.description"
+              placeholder="请输入知识库简介"
+              class="form-textarea"
+              rows="3"
+            ></textarea>
+          </div>
         </div>
-        <div class="form-group">
-          <label>简介</label>
-          <textarea
-            v-model="formData.description"
-            placeholder="请输入知识库简介"
-            class="form-textarea"
-            rows="3"
-          ></textarea>
-        </div>
+        
+        <!-- 底部操作 -->
         <div class="modal-actions">
           <button @click="closeModal" class="btn-secondary">取消</button>
           <button @click="handleUpdate" class="btn-primary">保存</button>
@@ -572,17 +590,39 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
 .modal-content {
   background: white;
   border-radius: 12px;
-  padding: 30px;
   width: 540px;
   max-width: 90vw;
   max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 弹窗头部 */
+.modal-header {
+  padding: 30px 30px 20px 30px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
+
+/* 弹窗主体内容 */
+.modal-body {
+  flex: 1;
+  padding: 20px 30px;
   overflow-y: auto;
 }
 
-.modal-content h2 {
-  font-size: 20px;
-  margin-bottom: 20px;
-  color: #333;
+/* 弹窗底部操作 */
+.modal-actions {
+  padding: 20px 30px 30px 30px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .form-group {
