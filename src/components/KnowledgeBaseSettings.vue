@@ -183,6 +183,10 @@ onMounted(() => {
   padding: 16px 20px;
   border-bottom: 1px solid #e0e0e0;
   background: #f8f9fa;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .settings-header h3 {

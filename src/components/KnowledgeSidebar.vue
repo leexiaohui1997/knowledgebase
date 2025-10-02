@@ -68,6 +68,9 @@ function getItemClass(item: SidebarItem) {
     <div class="sidebar-content">
       <!-- 直接渲染 explorer 插槽内容 -->
       <div v-if="activeItem === 'explorer'" class="explorer-content">
+        <div class="explorer-header">
+          <h3>文档目录</h3>
+        </div>
         <slot name="explorer">
           <!-- 文档目录内容 -->
         </slot>
@@ -159,6 +162,23 @@ function getItemClass(item: SidebarItem) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.explorer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.explorer-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
 }
 
 .settings-content {
