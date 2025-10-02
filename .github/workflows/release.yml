@@ -46,6 +46,22 @@ jobs:
           npm --version
           which node
 
+      - name: 获取版本号
+        id: get_version
+        run: |
+          # 从tag获取版本号 (移除v前缀)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}  # 移除v前缀
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION from tag: ${{ github.ref_name }}"
+
+      - name: 更新版本号
+        run: |
+          # 临时更新package.json中的版本号
+          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
+          echo "Updated package.json version to: ${{ steps.get_version.outputs.version }}"
+
       - name: 构建应用
         run: npm run build:mac
         continue-on-error: false
@@ -56,7 +72,7 @@ jobs:
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: macos-dmg
+          name: macos-dmg-v${{ steps.get_version.outputs.version }}
           path: release/*.dmg
           retention-days: 5
 
@@ -75,20 +91,21 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 下载构建产物
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-dmg
-          path: ./artifacts
-
       - name: 获取版本号
         id: get_version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
+          # 从tag获取版本号 (移除v前缀)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}  # 移除v前缀
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION from tag: ${{ github.ref_name }}"
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-dmg-v${{ steps.get_version.outputs.version }}
+          path: ./artifacts
 
       - name: 生成更新日志
         id: changelog
