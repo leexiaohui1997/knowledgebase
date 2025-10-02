@@ -609,6 +609,11 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
   font-family: inherit;
 }
 
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
 .form-input:focus,
 .form-textarea:focus {
   border-color: #42b883;
