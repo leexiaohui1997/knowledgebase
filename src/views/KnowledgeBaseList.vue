@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useKnowledgeStore } from '@/stores/knowledge'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
+import { alert } from '@/composables/useAlert'
 import type { KnowledgeBase } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -74,7 +75,7 @@ function closeModal() {
 // 创建知识库
 async function handleCreate() {
   if (!formData.value.name.trim()) {
-    alert('请输入知识库名称')
+    alert('请输入知识库名称', { type: 'warning' })
     return
   }
   await store.createKnowledgeBase(formData.value)
@@ -84,7 +85,7 @@ async function handleCreate() {
 // 更新知识库
 async function handleUpdate() {
   if (!formData.value.name.trim()) {
-    alert('请输入知识库名称')
+    alert('请输入知识库名称', { type: 'warning' })
     return
   }
   if (editingKnowledgeBase.value) {
@@ -151,6 +152,7 @@ function handleKbContextMenu(e: MouseEvent, kb: KnowledgeBase) {
   ]
   contextMenuRef.value?.show(e.clientX, e.clientY)
 }
+
 </script>
 
 <template>

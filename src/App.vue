@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import CustomAlert from '@/components/CustomAlert.vue'
 </script>
 
 <template>
   <div id="app">
     <RouterView />
+    <!-- 全局 Alert 组件 -->
+    <CustomAlert />
   </div>
 </template>
 

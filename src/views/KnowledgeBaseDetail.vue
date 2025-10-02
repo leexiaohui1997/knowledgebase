@@ -6,6 +6,7 @@ import DocumentTree from '@/components/DocumentTree.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
+import { alert } from '@/composables/useAlert'
 import type { DocumentNode } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -111,7 +112,7 @@ function openRenameModal(node: DocumentNode) {
 // 创建文档/文件夹
 async function handleCreate() {
   if (!createForm.value.name.trim()) {
-    alert('请输入名称')
+    alert('请输入名称', { type: 'warning' })
     return
   }
   await store.createDocument({
@@ -124,7 +125,7 @@ async function handleCreate() {
 // 重命名文档
 async function handleRename() {
   if (!renameInput.value.trim()) {
-    alert('请输入名称')
+    alert('请输入名称', { type: 'warning' })
     return
   }
   if (renamingNode.value) {

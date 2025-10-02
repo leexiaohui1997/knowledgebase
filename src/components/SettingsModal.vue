@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import ImageCleanupConfirm from './ImageCleanupConfirm.vue'
 import { getStorage } from '@/storage'
+import { alertSuccess, alertError } from '@/composables/useAlert'
 
 const props = defineProps<{
   show: boolean
@@ -31,11 +32,11 @@ async function scanUnusedImages() {
     if (unused.length > 0) {
       showCleanupConfirm.value = true
     } else {
-      alert('没有发现未使用的图片！')
+      alertSuccess('没有发现未使用的图片！')
     }
   } catch (error) {
     console.error('扫描图片失败:', error)
-    alert('扫描失败，请重试')
+    alertError('扫描失败，请重试')
   } finally {
     isScanning.value = false
   }
@@ -46,12 +47,12 @@ async function confirmCleanup() {
   try {
     const storage = getStorage()
     await storage.cleanupUnusedImages(unusedImages.value)
-    alert(`成功清理 ${unusedImages.value.length} 张图片！`)
+    alertSuccess(`成功清理 ${unusedImages.value.length} 张图片！`)
     unusedImages.value = []
     showCleanupConfirm.value = false
   } catch (error) {
     console.error('清理图片失败:', error)
-    alert('清理失败，请重试')
+    alertError('清理失败，请重试')
   }
 }
 
