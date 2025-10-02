@@ -110,42 +110,43 @@ jobs:
       - name: 生成更新日志
         id: changelog
         run: |
-          # 获取最近的提交信息并直接输出到文件
+          # 获取最近的提交信息
           git log --pretty=format:"- %s" -10 > CHANGELOG.txt
           echo "Generated changelog:"
           cat CHANGELOG.txt
+          
+          # 创建Release body模板
+          cat > RELEASE_BODY.md << 'EOF'
+          ## 🎉 知识库管理应用 ${{ steps.get_version.outputs.version }}
+          
+          ### 📦 下载
+          
+          - **macOS (M1/M2)**: 下载 `.dmg` 文件
+          
+          ### ✨ 更新内容
+          
+          EOF
+          
+          # 将更新日志添加到Release body
+          cat CHANGELOG.txt >> RELEASE_BODY.md
+          
+          cat >> RELEASE_BODY.md << 'EOF'
+          
+          ### 📝 说明
+          
+          - macOS 用户：下载 DMG 文件，双击安装
+          - 首次打开可能需要在系统设置中允许运行
+          EOF
+          
+          echo "Generated release body:"
+          cat RELEASE_BODY.md
 
       - name: 创建 Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
           name: 知识库管理 ${{ steps.get_version.outputs.version }}
-          body: |
-            ## 🎉 知识库管理应用 ${{ steps.get_version.outputs.version }}
-            
-            ### 📦 下载
-            
-            - **macOS (M1/M2)**: 下载 `.dmg` 文件
-            
-            ### ✨ 更新内容
-            
-            本次更新包含以下改进和修复：
-            
-            ### 📝 说明
-            
-            - macOS 用户：下载 DMG 文件，双击安装
-            - 首次打开可能需要在系统设置中允许运行
-            - 数据存储在本地，安全可靠
-            
-            ### 🌐 在线体验
-            
-            不想下载？可以直接使用 Web 版本：
-            https://leexiaohui1997.github.io/knowledgebase/
-            
-            ### 📚 文档
-            
-            - [使用指南](https://github.com/leexiaohui1997/knowledgebase/blob/main/README.md)
-            - [功能特性](https://github.com/leexiaohui1997/knowledgebase/blob/main/docs/FEATURES.md)
+          body_path: RELEASE_BODY.md
           files: |
             artifacts/*.dmg
           draft: false
