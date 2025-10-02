@@ -73,14 +73,12 @@ function getItemClass(item: SidebarItem) {
 
     <!-- 内容区域 -->
     <div class="sidebar-content">
-      <slot name="content" :activeItem="activeItem">
-        <!-- 默认内容插槽 -->
-        <div v-if="activeItem === 'explorer'" class="explorer-content">
-          <slot name="explorer">
-            <!-- 文档目录内容 -->
-          </slot>
-        </div>
-      </slot>
+      <!-- 直接渲染 explorer 插槽内容 -->
+      <div v-if="activeItem === 'explorer'" class="explorer-content">
+        <slot name="explorer">
+          <!-- 文档目录内容 -->
+        </slot>
+      </div>
     </div>
   </div>
 </template>
