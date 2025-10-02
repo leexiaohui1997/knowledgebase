@@ -73,8 +73,15 @@ function getItemClass(item: SidebarItem) {
 
     <!-- 内容区域 -->
     <div class="sidebar-content">
+      <!-- 调试信息 -->
+      <div style="padding: 8px; font-size: 12px; color: #666;">
+        Debug: activeItem = {{ activeItem }}, props.activeItem = {{ props.activeItem }}
+      </div>
       <!-- 直接渲染 explorer 插槽内容 -->
       <div v-if="activeItem === 'explorer'" class="explorer-content">
+        <div style="padding: 8px; font-size: 12px; color: #666;">
+          Debug: Explorer content should be here
+        </div>
         <slot name="explorer">
           <!-- 文档目录内容 -->
         </slot>
