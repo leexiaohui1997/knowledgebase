@@ -1,9 +1,8 @@
----
-alwaysApply: true
-description: AI开发规范手册 - 基于Vue3+TypeScript+Electron项目的开发标准
----
-
 # AI开发规范手册
+
+## 📖 文档说明
+
+这是基于Vue3+TypeScript+Electron项目的AI开发规范手册，为AI助手提供开发标准和最佳实践指导。
 
 ## 🎯 项目概述
 

@@ -1,9 +1,8 @@
----
-globs: *.vue,*.ts,*.js
-description: Vue组件开发规范 - 针对Vue3+TypeScript组件的具体开发标准
----
-
 # Vue组件开发规范
+
+## 📖 文档说明
+
+这是针对Vue3+TypeScript组件的具体开发标准，适用于所有Vue组件、TypeScript和JavaScript文件的开发。
 
 ## 🎯 组件设计原则
 

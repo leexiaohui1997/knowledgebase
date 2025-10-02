@@ -59,6 +59,15 @@
 |------|------|
 | [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) | 项目开发总结 |
 
+### 🤖 AI开发规范
+
+| 文档 | 说明 |
+|------|------|
+| [AI_DEVELOPMENT_STANDARDS.md](./AI_DEVELOPMENT_STANDARDS.md) | 🆕 AI开发规范手册 |
+| [VUE_COMPONENT_STANDARDS.md](./VUE_COMPONENT_STANDARDS.md) | 🆕 Vue组件开发规范 |
+| [PROJECT_SPECIFIC_STANDARDS.md](./PROJECT_SPECIFIC_STANDARDS.md) | 🆕 项目特定功能规范 |
+| [CUSTOM_ALERT.md](./CUSTOM_ALERT.md) | 🆕 自定义Alert组件使用指南 |
+
 ---
 
 ## 🎯 按场景查找
