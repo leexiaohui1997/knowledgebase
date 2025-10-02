@@ -17,6 +17,14 @@
 | [GITHUB_PAGES_DEPLOYMENT.md](./GITHUB_PAGES_DEPLOYMENT.md) | 🚀 GitHub Pages 部署指南 |
 | [RELEASE_GUIDE.md](./RELEASE_GUIDE.md) | 📦 GitHub Release 发布指南 |
 
+### 🚀 部署与发布
+
+| 文档 | 说明 |
+|------|------|
+| [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md) | 🆕 部署指南 |
+| [HOW_TO_RELEASE.md](./HOW_TO_RELEASE.md) | 🆕 发布指南 |
+| [RELEASE_QUICK_START.md](./RELEASE_QUICK_START.md) | 🆕 快速发布指南 |
+
 ### 🛠️ 功能实现
 
 | 文档 | 说明 |

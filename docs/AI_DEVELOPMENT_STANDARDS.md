@@ -139,7 +139,8 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
 4. **实现开发**: 编写代码和样式
 5. **测试验证**: 功能测试和用户体验验证
 6. **文档编写**: 更新相关文档
-7. **代码提交**: 使用规范的提交信息
+7. **文档整理**: 将新文档移动到 `docs/` 目录并更新索引
+8. **代码提交**: 使用规范的提交信息
 
 ### 组件开发规范
 - **单一职责**: 每个组件只负责一个功能
@@ -155,6 +156,26 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
 - **兼容性**: 确保Electron版和Web版都正常
 
 ## 📝 文档规范
+
+### 文档管理规范
+- **统一目录**: 所有项目文档统一存放在 `docs/` 目录下
+- **分类管理**: 按功能模块分类组织文档结构
+- **命名规范**: 使用大写字母和下划线的命名方式（如 `AI_DEVELOPMENT_STANDARDS.md`）
+- **索引维护**: 在 `docs/README.md` 中维护完整的文档索引
+- **及时更新**: 新增文档后及时更新索引和分类
+
+### 文档分类结构
+```
+docs/
+├── README.md                           # 文档索引
+├── AI_DEVELOPMENT_STANDARDS.md         # AI开发规范手册
+├── VUE_COMPONENT_STANDARDS.md          # Vue组件开发规范
+├── PROJECT_SPECIFIC_STANDARDS.md       # 项目特定功能规范
+├── DEPLOY_GUIDE.md                     # 部署指南
+├── HOW_TO_RELEASE.md                   # 发布指南
+├── RELEASE_QUICK_START.md              # 快速发布指南
+└── ...其他功能文档
+```
 
 ### 代码注释
 - **组件说明**: 每个组件都要有清晰的功能说明
