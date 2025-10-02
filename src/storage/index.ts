@@ -13,7 +13,7 @@ let storageInstance: IStorage | null = null
  * 检测当前运行环境
  */
 export function isElectronEnvironment(): boolean {
-  return typeof window !== 'undefined' && !!window.electronAPI
+  return typeof window !== 'undefined' && !!(window as any).electronAPI
 }
 
 /**

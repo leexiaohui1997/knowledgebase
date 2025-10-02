@@ -1,0 +1,152 @@
+/**
+ * 图片提供者抽象接口
+ * 定义统一的图片存储和访问接口，支持本地存储和第三方图床
+ */
+
+/**
+ * 图片元数据
+ */
+export interface ImageMetadata {
+  id: string
+  url: string
+  provider: string
+  size?: number
+  width?: number
+  height?: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * 图片上传结果
+ */
+export interface ImageUploadResult {
+  id: string
+  url: string
+  metadata?: Partial<ImageMetadata>
+}
+
+/**
+ * 图片提供者配置
+ */
+export interface ImageProviderConfig {
+  name: string
+  type: 'local' | 'cloud'
+  enabled: boolean
+  settings?: Record<string, any>
+}
+
+/**
+ * 图片提供者接口
+ */
+export interface IImageProvider {
+  /**
+   * 提供者名称
+   */
+  readonly name: string
+
+  /**
+   * 提供者类型
+   */
+  readonly type: 'local' | 'cloud'
+
+  /**
+   * 是否可用
+   */
+  isAvailable(): Promise<boolean>
+
+  /**
+   * 上传图片
+   */
+  uploadImage(imageData: string, filename?: string): Promise<ImageUploadResult>
+
+  /**
+   * 获取图片
+   */
+  getImage(id: string): Promise<string>
+
+  /**
+   * 删除图片
+   */
+  deleteImage(id: string): Promise<void>
+
+  /**
+   * 获取图片元数据
+   */
+  getImageMetadata(id: string): Promise<ImageMetadata | null>
+
+  /**
+   * 列出所有图片
+   */
+  listImages(): Promise<ImageMetadata[]>
+
+  /**
+   * 检查图片是否存在
+   */
+  imageExists(id: string): Promise<boolean>
+}
+
+/**
+ * 图片管理器接口
+ */
+export interface IImageManager {
+  /**
+   * 设置默认提供者
+   */
+  setDefaultProvider(providerName: string): void
+
+  /**
+   * 获取默认提供者
+   */
+  getDefaultProvider(): IImageProvider
+
+  /**
+   * 注册提供者
+   */
+  registerProvider(provider: IImageProvider): void
+
+  /**
+   * 获取提供者
+   */
+  getProvider(name: string): IImageProvider | null
+
+  /**
+   * 获取所有提供者
+   */
+  getAllProviders(): IImageProvider[]
+
+  /**
+   * 上传图片（使用默认提供者）
+   */
+  uploadImage(imageData: string, filename?: string, providerName?: string): Promise<ImageUploadResult>
+
+  /**
+   * 获取图片
+   */
+  getImage(id: string, providerName?: string): Promise<string>
+
+  /**
+   * 删除图片
+   */
+  deleteImage(id: string, providerName?: string): Promise<void>
+
+  /**
+   * 获取图片元数据
+   */
+  getImageMetadata(id: string, providerName?: string): Promise<ImageMetadata | null>
+
+  /**
+   * 列出所有图片
+   */
+  listImages(providerName?: string): Promise<ImageMetadata[]>
+
+  /**
+   * 检查图片是否存在
+   */
+  imageExists(id: string, providerName?: string): Promise<boolean>
+
+  /**
+   * 迁移图片到其他提供者
+   */
+  migrateImage(imageId: string, fromProvider: string, toProvider: string): Promise<ImageUploadResult>
+}

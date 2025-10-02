@@ -4,6 +4,9 @@
 
 import type { IStorage, StorageData } from './types'
 import type { KnowledgeBase, DocumentNode } from '../types'
+import { ImageManager } from './image-manager'
+import { LocalImageProvider } from './local-image-provider'
+import type { IImageManager } from './image-provider'
 
 const DB_NAME = 'KnowledgeBaseDB'
 const DB_VERSION = 1
@@ -12,6 +15,14 @@ const STORE_IMAGES = 'images' // 存储图片
 
 export class WebStorage implements IStorage {
   private db: IDBDatabase | null = null
+  private imageManager: IImageManager
+
+  constructor() {
+    this.imageManager = new ImageManager()
+    // 注册本地图片提供者
+    const localProvider = new LocalImageProvider(this)
+    this.imageManager.registerProvider(localProvider)
+  }
 
   /**
    * 初始化数据库
@@ -270,6 +281,12 @@ export class WebStorage implements IStorage {
         console.error('删除图片失败:', imagePath, error)
       }
     }
+  }
+
+  // ==================== 图片管理器 ====================
+
+  getImageManager(): IImageManager {
+    return this.imageManager
   }
 }
 

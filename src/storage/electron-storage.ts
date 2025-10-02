@@ -4,13 +4,25 @@
 
 import type { IStorage } from './types'
 import type { KnowledgeBase, DocumentNode } from '../types'
+import { ImageManager } from './image-manager'
+import { LocalImageProvider } from './local-image-provider'
+import type { IImageManager } from './image-provider'
 
 export class ElectronStorage implements IStorage {
+  private imageManager: IImageManager
+
+  constructor() {
+    this.imageManager = new ImageManager()
+    // 注册本地图片提供者
+    const localProvider = new LocalImageProvider(this)
+    this.imageManager.registerProvider(localProvider)
+  }
+
   private get api() {
-    if (!window.electronAPI) {
+    if (!(window as any).electronAPI) {
       throw new Error('Electron API not available')
     }
-    return window.electronAPI
+    return (window as any).electronAPI
   }
 
   // ==================== 知识库操作 ====================
@@ -38,25 +50,29 @@ export class ElectronStorage implements IStorage {
   }
 
   async createDocument(knowledgeBaseId: string, doc: DocumentNode): Promise<void> {
-    await this.api.createDocument(knowledgeBaseId, doc)
+    await this.api.createDocument({ ...doc, knowledgeBaseId })
   }
 
   async updateDocument(knowledgeBaseId: string, doc: DocumentNode): Promise<void> {
-    await this.api.updateDocument(knowledgeBaseId, doc)
+    await this.api.updateDocument({ ...doc, knowledgeBaseId })
   }
 
-  async deleteDocument(knowledgeBaseId: string, docId: string): Promise<void> {
-    await this.api.deleteDocument(knowledgeBaseId, docId)
+  async deleteDocument(_knowledgeBaseId: string, docId: string): Promise<void> {
+    await this.api.deleteDocument(docId)
   }
 
   // ==================== 图片操作 ====================
 
   async saveImage(knowledgeBaseId: string, imageData: string): Promise<string> {
-    return this.api.saveImage(knowledgeBaseId, imageData)
+    return this.api.saveImage(imageData, knowledgeBaseId)
   }
 
   async readImage(imagePath: string): Promise<string> {
-    return this.api.readImage(imagePath)
+    const result = await this.api.readImage(imagePath)
+    if (result === null) {
+      throw new Error('Image not found')
+    }
+    return result
   }
 
   async deleteImage(imagePath: string): Promise<void> {
@@ -71,6 +87,12 @@ export class ElectronStorage implements IStorage {
 
   async cleanupUnusedImages(imagePaths: string[]): Promise<void> {
     await this.api.cleanupUnusedImages(imagePaths)
+  }
+
+  // ==================== 图片管理器 ====================
+
+  getImageManager(): IImageManager {
+    return this.imageManager
   }
 }
 
