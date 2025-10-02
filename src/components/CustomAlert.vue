@@ -57,13 +57,13 @@ function handleOverlayClick(e: MouseEvent) {
 function getIcon() {
   switch (currentOptions.value.type) {
     case 'success':
-      return 'fa-check-circle'
+      return 'fa-check'
     case 'warning':
-      return 'fa-exclamation-triangle'
+      return 'fa-exclamation'
     case 'error':
-      return 'fa-times-circle'
+      return 'fa-times'
     default:
-      return 'fa-info-circle'
+      return 'fa-info'
   }
 }
 
