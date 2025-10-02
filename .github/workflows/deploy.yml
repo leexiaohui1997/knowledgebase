@@ -1,10 +1,10 @@
 name: 部署到 GitHub Pages
 
 on:
-  # 在推送到 main 分支时触发
+  # 推送标签时自动触发
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
   
   # 允许手动触发
   workflow_dispatch:
