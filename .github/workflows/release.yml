@@ -203,7 +203,14 @@ jobs:
           
           - **macOS 用户**：下载 DMG 文件，双击安装
           - **Windows 用户**：下载 EXE 文件，双击运行安装程序
-          - 首次打开可能需要在系统设置中允许运行
+          
+          ### ⚠️ macOS 安全提示
+          
+          如果遇到"应用已损坏"提示，请按以下步骤操作：
+          1. 打开"系统设置" → "隐私与安全性"
+          2. 在"安全性"部分找到被阻止的应用
+          3. 点击"仍要打开"按钮
+          4. 或者运行命令：`sudo xattr -rd com.apple.quarantine /Applications/KnowledgeBase.app`
           EOF
           
           echo "Generated release body:"
