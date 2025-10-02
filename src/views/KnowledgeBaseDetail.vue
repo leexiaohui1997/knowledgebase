@@ -350,8 +350,7 @@ if (import.meta.env.DEV) {
         :active-item="activeSidebarItem"
         @item-click="handleSidebarItemClick"
       >
-        <template #content>
-          <template #explorer>
+        <template #explorer>
           <div class="explorer-panel">
             <div 
               class="tree-container" 
@@ -381,7 +380,6 @@ if (import.meta.env.DEV) {
               </div>
             </div>
           </div>
-          </template>
         </template>
       </KnowledgeSidebar>
 
