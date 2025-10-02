@@ -36,6 +36,11 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
     if (index !== -1) {
       knowledgeBases.value[index] = kb
     }
+    
+    // 如果当前知识库是被更新的那个，也要更新currentKnowledgeBase
+    if (currentKnowledgeBase.value && currentKnowledgeBase.value.id === kb.id) {
+      currentKnowledgeBase.value = kb
+    }
   }
 
   // 删除知识库
