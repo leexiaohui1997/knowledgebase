@@ -76,12 +76,72 @@ jobs:
           path: release/*.dmg
           retention-days: 5
 
+  # Windows 构建任务
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+        continue-on-error: false
+        timeout-minutes: 10
+
+      - name: 验证构建环境
+        run: |
+          node --version
+          npm --version
+
+      - name: 获取版本号
+        id: get_version
+        run: |
+          # 从tag获取版本号 (移除v前缀)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}  # 移除v前缀
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION from tag: ${{ github.ref_name }}"
+
+      - name: 更新版本号
+        run: |
+          # 临时更新package.json中的版本号
+          npm version ${{ steps.get_version.outputs.version }} --no-git-tag-version
+          echo "Updated package.json version to: ${{ steps.get_version.outputs.version }}"
+
+      - name: 构建应用
+        run: npm run build:win
+        continue-on-error: false
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe-v${{ steps.get_version.outputs.version }}
+          path: release/*.exe
+          retention-days: 5
+
   # 创建 Release
   create-release:
-    needs: build-macos
+    needs: [build-macos, build-windows]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: needs.build-macos.result == 'success'
+    if: needs.build-macos.result == 'success' && needs.build-windows.result == 'success'
     
     permissions:
       contents: write
@@ -101,11 +161,17 @@ jobs:
           echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION from tag: ${{ github.ref_name }}"
 
-      - name: 下载构建产物
+      - name: 下载macOS构建产物
         uses: actions/download-artifact@v4
         with:
           name: macos-dmg-v${{ steps.get_version.outputs.version }}
-          path: ./artifacts
+          path: ./artifacts/macos
+
+      - name: 下载Windows构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-exe-v${{ steps.get_version.outputs.version }}
+          path: ./artifacts/windows
 
       - name: 生成更新日志
         id: changelog
@@ -122,6 +188,7 @@ jobs:
           ### 📦 下载
           
           - **macOS (M1/M2)**: 下载 `.dmg` 文件
+          - **Windows (x64)**: 下载 `.exe` 文件
           
           ### ✨ 更新内容
           
@@ -134,7 +201,8 @@ jobs:
           
           ### 📝 说明
           
-          - macOS 用户：下载 DMG 文件，双击安装
+          - **macOS 用户**：下载 DMG 文件，双击安装
+          - **Windows 用户**：下载 EXE 文件，双击运行安装程序
           - 首次打开可能需要在系统设置中允许运行
           EOF
           
@@ -148,7 +216,8 @@ jobs:
           name: 知识库管理 ${{ steps.get_version.outputs.version }}
           body_path: RELEASE_BODY.md
           files: |
-            artifacts/*.dmg
+            artifacts/macos/*.dmg
+            artifacts/windows/*.exe
           draft: false
           prerelease: false
 
