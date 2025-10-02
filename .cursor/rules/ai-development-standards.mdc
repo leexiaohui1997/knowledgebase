@@ -1,0 +1,259 @@
+---
+alwaysApply: true
+description: AI开发规范手册 - 基于Vue3+TypeScript+Electron项目的开发标准
+---
+
+# AI开发规范手册
+
+## 🎯 项目概述
+
+这是一个基于 **Vite + Vue3 + TypeScript + Electron** 的现代化文档管理系统，支持知识库管理、Markdown编辑、拖拽排序等功能。项目采用双版本架构（Electron桌面版 + Web浏览器版）。
+
+## 🏗️ 技术栈规范
+
+### 核心技术
+- **前端框架**: Vue 3.4 (Composition API)
+- **构建工具**: Vite 5.x
+- **桌面框架**: Electron 28.x
+- **语言**: TypeScript 5.x
+- **路由**: Vue Router 4.x
+- **状态管理**: Pinia 2.x
+- **编辑器**: Cherry Markdown 0.8.x
+- **图标**: Font Awesome 6.x
+
+### 架构设计
+- **存储抽象层**: 支持Electron文件系统 + Web IndexedDB双版本
+- **组件化设计**: 高度模块化的Vue组件架构
+- **类型安全**: 完整的TypeScript类型系统
+- **响应式布局**: 现代化的UI/UX设计
+
+## 📁 项目结构规范
+
+```
+demo/
+├── electron/              # Electron后端
+│   ├── main.ts           # 主进程
+│   ├── preload.ts        # 预加载脚本
+│   ├── storage.ts        # 数据存储
+│   ├── image-storage.ts  # 图片存储
+│   └── ipc-handlers.ts   # IPC通信
+├── src/
+│   ├── components/       # Vue组件
+│   │   ├── CustomAlert.vue      # 自定义弹窗
+│   │   ├── ContextMenu.vue      # 右键菜单
+│   │   ├── DocumentTree.vue     # 文档树
+│   │   ├── MarkdownEditor.vue   # Markdown编辑器
+│   │   └── SettingsModal.vue    # 设置弹窗
+│   ├── composables/      # 组合式函数
+│   │   └── useAlert.ts   # Alert状态管理
+│   ├── views/            # 页面视图
+│   ├── stores/           # Pinia状态管理
+│   ├── storage/          # 存储抽象层
+│   ├── types/            # TypeScript类型
+│   └── router/           # 路由配置
+└── docs/                 # 项目文档
+```
+
+## 🎨 代码规范
+
+### Vue组件规范
+- **使用Composition API**: 优先使用`<script setup>`语法
+- **TypeScript类型**: 所有props、emits、composables都要有完整类型定义
+- **组件命名**: 使用PascalCase，文件名与组件名一致
+- **Props验证**: 使用TypeScript接口定义props类型
+
+```typescript
+// ✅ 正确示例
+interface AlertOptions {
+  title?: string
+  message: string
+  type?: 'info' | 'success' | 'warning' | 'error'
+}
+
+const props = withDefaults(defineProps<{
+  show?: boolean
+  options?: AlertOptions
+}>(), {
+  show: undefined,
+  options: undefined
+})
+```
+
+### 状态管理规范
+- **Pinia Store**: 使用Composition API风格
+- **响应式数据**: 优先使用`ref`和`reactive`
+- **类型安全**: 所有store都要有完整的类型定义
+- **模块化**: 按功能拆分store
+
+```typescript
+// ✅ 正确示例
+export const useKnowledgeStore = defineStore('knowledge', () => {
+  const documents = ref<DocumentNode[]>([])
+  const currentDocument = ref<DocumentNode | null>(null)
+  
+  async function createDocument(data: CreateNodeForm) {
+    // 实现逻辑
+  }
+  
+  return {
+    documents,
+    currentDocument,
+    createDocument
+  }
+})
+```
+
+### 存储层规范
+- **抽象层设计**: 实现IStorage接口，支持多平台
+- **环境检测**: 自动检测Electron/Web环境
+- **错误处理**: 完善的异常捕获和错误提示
+- **数据安全**: 使用toRaw()避免Proxy序列化问题
+
+## 🎨 UI/UX设计规范
+
+### 视觉设计
+- **主题色**: #42b883 (Vue绿)
+- **背景色**: #f5f5f5 (浅灰)
+- **文字色**: #333 (深灰)
+- **边框色**: #e0e0e0 (中灰)
+- **危险色**: #ef4444 (红色)
+
+### 组件设计
+- **圆角**: 6-12px
+- **阴影**: 0 2px 8px rgba(0, 0, 0, 0.1)
+- **间距**: 8px, 12px, 16px, 20px, 24px
+- **按钮高度**: 40px
+- **头部栏高度**: 61px
+
+### 动画效果
+- **过渡时间**: 0.2s
+- **缓动函数**: ease
+- **悬停效果**: 颜色变化 + 轻微位移
+- **加载状态**: 旋转动画
+
+## 🔧 开发流程规范
+
+### 功能开发流程
+1. **需求分析**: 明确功能需求和用户场景
+2. **技术设计**: 确定技术方案和架构
+3. **组件设计**: 设计组件接口和类型
+4. **实现开发**: 编写代码和样式
+5. **测试验证**: 功能测试和用户体验验证
+6. **文档编写**: 更新相关文档
+7. **代码提交**: 使用规范的提交信息
+
+### 组件开发规范
+- **单一职责**: 每个组件只负责一个功能
+- **可复用性**: 设计通用的组件接口
+- **类型安全**: 完整的TypeScript类型定义
+- **错误处理**: 完善的边界情况处理
+- **性能优化**: 合理使用计算属性和缓存
+
+### 测试规范
+- **功能测试**: 验证所有功能正常工作
+- **边界测试**: 测试异常输入和边界情况
+- **用户体验**: 确保操作流畅和反馈及时
+- **兼容性**: 确保Electron版和Web版都正常
+
+## 📝 文档规范
+
+### 代码注释
+- **组件说明**: 每个组件都要有清晰的功能说明
+- **复杂逻辑**: 关键算法和业务逻辑要有注释
+- **API文档**: 公共函数要有完整的参数和返回值说明
+
+### 项目文档
+- **README.md**: 项目概述和快速开始
+- **功能文档**: 每个功能模块的详细说明
+- **技术文档**: 架构设计和技术实现细节
+- **使用指南**: 用户使用手册和最佳实践
+
+## 🚀 提交规范
+
+### 提交信息格式
+```
+<type>: <subject>
+
+<description>
+
+<footer>
+```
+
+### 类型说明
+- **feat**: 新功能
+- **fix**: 修复bug
+- **docs**: 文档更新
+- **style**: 代码格式调整
+- **refactor**: 代码重构
+- **test**: 测试相关
+- **chore**: 构建工具或辅助工具的变动
+
+### 提交信息示例
+```
+feat: 实现自定义Alert弹窗组件系统
+
+✨ 新增功能:
+- 创建CustomAlert.vue自定义弹窗组件
+- 实现useAlert.ts全局状态管理
+- 集成Font Awesome图标系统
+
+🔧 技术实现:
+- 使用Vue 3 Composition API
+- 支持多种弹窗类型和配置选项
+- 响应式设计和动画效果
+
+🔄 替换原生alert:
+- 完全替换原生alert调用
+- 提供统一的用户体验
+```
+
+## 🔒 安全规范
+
+### Electron安全配置
+- **nodeIntegration**: false
+- **contextIsolation**: true
+- **Preload脚本**: 安全的API暴露
+- **IPC通信**: 严格的参数验证
+
+### 数据安全
+- **输入验证**: 所有用户输入都要验证
+- **XSS防护**: 避免innerHTML直接插入
+- **数据序列化**: 使用toRaw()避免Proxy问题
+
+## 🎯 最佳实践
+
+### 性能优化
+- **懒加载**: 组件和路由按需加载
+- **缓存策略**: 合理使用计算属性缓存
+- **防抖节流**: 高频操作使用防抖
+- **虚拟滚动**: 长列表使用虚拟滚动
+
+### 用户体验
+- **即时反馈**: 操作要有明确的视觉反馈
+- **错误提示**: 友好的错误信息和解决建议
+- **加载状态**: 长时间操作显示加载指示器
+- **快捷键**: 支持常用操作的键盘快捷键
+
+### 代码质量
+- **TypeScript**: 严格的类型检查
+- **ESLint**: 代码风格统一
+- **代码复用**: 避免重复代码
+- **可维护性**: 清晰的代码结构和注释
+
+## 🎉 项目特色
+
+### 技术亮点
+- **双版本架构**: 一套代码支持桌面和Web
+- **存储抽象层**: 自动环境检测和适配
+- **拖拽系统**: 原生HTML5拖拽实现
+- **Markdown编辑**: Cherry Markdown专业编辑器
+
+### 用户体验
+- **现代化UI**: 简洁美观的界面设计
+- **流畅动画**: 平滑的过渡效果
+- **直观操作**: 拖拽、右键菜单等便捷操作
+- **响应式设计**: 适配不同屏幕尺寸
+
+---
+
+**遵循此规范，确保代码质量、用户体验和项目可维护性！** 🚀
