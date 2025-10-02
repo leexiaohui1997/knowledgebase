@@ -59,28 +59,33 @@ export function alertError(message: string, title?: string) {
 // 确认对话框
 export function confirm(message: string, options: Partial<AlertOptions> = {}) {
   return new Promise<boolean>((resolve) => {
-    alert(message, {
-      title: '确认',
+    // 设置确认对话框状态
+    alertState.options = {
+      message,
       type: 'warning',
       showCancel: true,
       confirmText: '确定',
       cancelText: '取消',
       ...options
-    })
+    }
+    alertState.show = true
     
-    // 监听确认和取消事件
+    // 创建一次性事件监听器
     const handleConfirm = () => {
+      window.removeEventListener('alert-confirm', handleConfirm)
+      window.removeEventListener('alert-cancel', handleCancel)
       alertState.show = false
       resolve(true)
     }
     
     const handleCancel = () => {
+      window.removeEventListener('alert-confirm', handleConfirm)
+      window.removeEventListener('alert-cancel', handleCancel)
       alertState.show = false
       resolve(false)
     }
     
-    // 这里需要与组件通信，暂时使用简单的实现
-    // 在实际使用中，可以通过事件总线或全局状态管理来处理
+    // 监听确认和取消事件
     window.addEventListener('alert-confirm', handleConfirm)
     window.addEventListener('alert-cancel', handleCancel)
   })

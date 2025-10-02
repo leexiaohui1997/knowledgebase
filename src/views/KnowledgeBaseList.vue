@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useKnowledgeStore } from '@/stores/knowledge'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
-import { alert } from '@/composables/useAlert'
+import { alert, confirm } from '@/composables/useAlert'
 import type { KnowledgeBase } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -101,7 +101,14 @@ async function handleUpdate() {
 
 // 删除知识库
 async function handleDelete(kb: KnowledgeBase) {
-  if (confirm(`确定要删除知识库「${kb.name}」吗？这将删除该知识库下的所有文档。`)) {
+  const result = await confirm(`确定要删除知识库「${kb.name}」吗？这将删除该知识库下的所有文档。`, {
+    title: '确认删除',
+    type: 'error',
+    confirmText: '删除',
+    cancelText: '取消'
+  })
+  
+  if (result) {
     await store.deleteKnowledgeBase(kb.id)
   }
 }

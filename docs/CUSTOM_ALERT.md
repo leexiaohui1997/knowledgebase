@@ -63,6 +63,30 @@ if (result) {
 }
 ```
 
+### 3. 确认对话框详解
+
+确认对话框是Alert组件的重要功能，用于替换原生的 `confirm()` 函数：
+
+```typescript
+// ✅ 替换原生confirm的正确方式
+// 原来的代码：
+if (confirm('确定要删除吗？')) {
+  // 删除操作
+}
+
+// 替换为：
+const result = await confirm('确定要删除吗？', {
+  title: '确认删除',
+  type: 'error',
+  confirmText: '删除',
+  cancelText: '取消'
+})
+
+if (result) {
+  // 删除操作
+}
+```
+
 ### 3. 组件配置选项
 
 ```typescript
@@ -128,15 +152,17 @@ window.dispatchEvent(new CustomEvent('alert-confirm'))
 window.dispatchEvent(new CustomEvent('alert-cancel'))
 ```
 
-## 📝 已替换的 alert 调用
+## 📝 已替换的 alert 和 confirm 调用
 
 ### KnowledgeBaseList.vue
 - ✅ 创建知识库名称验证
 - ✅ 编辑知识库名称验证
+- ✅ 删除知识库确认对话框
 
 ### KnowledgeBaseDetail.vue
 - ✅ 创建文档名称验证
 - ✅ 重命名文档名称验证
+- ✅ 删除文档确认对话框
 
 ### SettingsModal.vue
 - ✅ 图片扫描结果提示

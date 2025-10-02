@@ -6,7 +6,7 @@ import DocumentTree from '@/components/DocumentTree.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
-import { alert } from '@/composables/useAlert'
+import { alert, confirm } from '@/composables/useAlert'
 import type { DocumentNode } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
 
@@ -149,7 +149,14 @@ function handleSelectDocument(doc: DocumentNode) {
 
 // 删除文档
 async function handleDeleteDocument(doc: DocumentNode) {
-  if (confirm(`确定要删除「${doc.name}」吗？${doc.type === 'folder' ? '这将删除文件夹下的所有内容。' : ''}`)) {
+  const result = await confirm(`确定要删除「${doc.name}」吗？${doc.type === 'folder' ? '这将删除文件夹下的所有内容。' : ''}`, {
+    title: '确认删除',
+    type: 'error',
+    confirmText: '删除',
+    cancelText: '取消'
+  })
+  
+  if (result) {
     await store.deleteDocument(doc.id)
     if (store.currentDocument?.id === doc.id) {
       store.setCurrentDocument(null)
