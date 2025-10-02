@@ -37,6 +37,7 @@
 | [FONT_AWESOME.md](./FONT_AWESOME.md) | Font Awesome 图标库集成 |
 | [CUSTOM_ICON.md](./CUSTOM_ICON.md) | 自定义应用图标指南 |
 | [SETTINGS_FEATURE.md](./SETTINGS_FEATURE.md) | ⚙️ 设置功能和图片清理 |
+| [KNOWLEDGE_SIDEBAR.md](./KNOWLEDGE_SIDEBAR.md) | 🆕 VS Code 风格侧边栏组件 |
 
 ### 🐛 问题修复
 

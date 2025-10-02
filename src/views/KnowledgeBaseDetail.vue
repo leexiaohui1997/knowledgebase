@@ -6,6 +6,7 @@ import DocumentTree from '@/components/DocumentTree.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
+import KnowledgeSidebar from '@/components/KnowledgeSidebar.vue'
 import { alert, confirm } from '@/composables/useAlert'
 import type { DocumentNode } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
@@ -28,6 +29,7 @@ const createForm = ref({
 })
 const contextMenuRef = ref<InstanceType<typeof ContextMenu> | null>(null)
 const contextMenuItems = ref<MenuItem[]>([])
+const activeSidebarItem = ref('explorer')
 
 // 构建树形结构
 const documentTree = computed(() => {
@@ -308,6 +310,12 @@ function debugPrintDocuments() {
   )
 }
 
+// 处理侧边栏导航点击
+function handleSidebarItemClick(itemId: string) {
+  activeSidebarItem.value = itemId
+  console.log('切换到侧边栏项:', itemId)
+}
+
 // 开发环境下暴露调试函数到全局
 if (import.meta.env.DEV) {
   (window as any).debugDocs = debugPrintDocuments
@@ -337,41 +345,47 @@ if (import.meta.env.DEV) {
     </header>
 
     <div class="content">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <h3>
-            <font-awesome-icon :icon="['fas', 'folder-open']" class="sidebar-icon" />
-            文档目录
-          </h3>
-        </div>
-        <div 
-          class="tree-container" 
-          :class="{ 'drag-over-root': isDraggingOverRoot }"
-          @contextmenu="handleTreeAreaContextMenu"
-          @dragover="handleRootDragOver"
-          @dragleave="handleRootDragLeave"
-          @drop="handleRootDrop"
-        >
-          <DocumentTree
-            :nodes="documentTree"
-            :all-nodes="store.documents"
-            :current-doc-id="store.currentDocument?.id"
-            @select="handleSelectDocument"
-            @delete="handleDeleteDocument"
-            @create-child="openCreateModal"
-            @context-menu="handleNodeContextMenu"
-            @drag-move="handleDragMove"
-            @drag-over-node="handleDragOverNode"
-          />
-          <div v-if="documentTree.length === 0" class="empty-tree">
-            <p>暂无文档</p>
-            <p class="hint">右键或点击右上角「新建」创建文件或文件夹</p>
+      <!-- 左侧侧边栏 -->
+      <KnowledgeSidebar
+        :active-item="activeSidebarItem"
+        @item-click="handleSidebarItemClick"
+      >
+        <template #explorer>
+          <div class="explorer-panel">
+            <div class="panel-header">
+              <font-awesome-icon :icon="['fas', 'folder-open']" class="panel-icon" />
+              <h3>文档目录</h3>
+            </div>
+            <div 
+              class="tree-container" 
+              :class="{ 'drag-over-root': isDraggingOverRoot }"
+              @contextmenu="handleTreeAreaContextMenu"
+              @dragover="handleRootDragOver"
+              @dragleave="handleRootDragLeave"
+              @drop="handleRootDrop"
+            >
+              <DocumentTree
+                :nodes="documentTree"
+                :all-nodes="store.documents"
+                :current-doc-id="store.currentDocument?.id"
+                @select="handleSelectDocument"
+                @delete="handleDeleteDocument"
+                @create-child="openCreateModal"
+                @context-menu="handleNodeContextMenu"
+                @drag-move="handleDragMove"
+                @drag-over-node="handleDragOverNode"
+              />
+              <div v-if="documentTree.length === 0" class="empty-tree">
+                <p>暂无文档</p>
+                <p class="hint">右键或点击右上角「新建」创建文件或文件夹</p>
+              </div>
+              <div v-else class="drop-zone-hint">
+                拖到这里移至根目录
+              </div>
+            </div>
           </div>
-          <div v-else class="drop-zone-hint">
-            拖到这里移至根目录
-          </div>
-        </div>
-      </aside>
+        </template>
+      </KnowledgeSidebar>
 
       <main class="editor-area">
         <MarkdownEditor
@@ -538,24 +552,24 @@ if (import.meta.env.DEV) {
   overflow: hidden;
 }
 
-.sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e0e0e0;
+/* 新的侧边栏面板样式 */
+.explorer-panel {
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.sidebar-header {
+.panel-header {
   padding: 0 20px;
   border-bottom: 1px solid #e0e0e0;
   height: 61px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  background: white;
 }
 
-.sidebar-header h3 {
+.panel-header h3 {
   font-size: 14px;
   font-weight: 600;
   color: #333;
@@ -566,7 +580,7 @@ if (import.meta.env.DEV) {
   gap: 8px;
 }
 
-.sidebar-icon {
+.panel-icon {
   color: #42b883;
 }
 
