@@ -47,7 +47,7 @@
   },
   "build": {
     "appId": "com.knowledgebase.app",
-    "productName": "KnowledgeBase",
+    "productName": "知识库管理",
     "directories": {
       "output": "release"
     },
@@ -65,7 +65,7 @@
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.productivity",
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "artifactName": "KnowledgeBase-${version}-${arch}.${ext}",
       "identity": null,
       "gatekeeperAssess": false,
       "hardenedRuntime": false
@@ -78,7 +78,7 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "KnowledgeBase-${version}-${arch}.${ext}"
     },
     "linux": {
       "target": "AppImage",
