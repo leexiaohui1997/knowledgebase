@@ -7,6 +7,7 @@ import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
 import KnowledgeSidebar from '@/components/KnowledgeSidebar.vue'
+import KnowledgeBaseSettings from '@/components/KnowledgeBaseSettings.vue'
 import { alert, confirm } from '@/composables/useAlert'
 import type { DocumentNode } from '@/types'
 import type { MenuItem } from '@/components/ContextMenu.vue'
@@ -380,6 +381,10 @@ if (import.meta.env.DEV) {
               </div>
             </div>
           </div>
+        </template>
+
+        <template #settings>
+          <KnowledgeBaseSettings />
         </template>
       </KnowledgeSidebar>
 

@@ -23,20 +23,13 @@ const sidebarItems = ref<SidebarItem[]>([
     icon: 'fa-folder-open',
     label: '目录',
     tooltip: '文档目录'
+  },
+  {
+    id: 'settings',
+    icon: 'fa-gear',
+    label: '设置',
+    tooltip: '知识库设置'
   }
-  // 后续可以扩展更多导航项
-  // {
-  //   id: 'search',
-  //   icon: 'fa-magnifying-glass',
-  //   label: '搜索',
-  //   tooltip: '搜索文档'
-  // },
-  // {
-  //   id: 'outline',
-  //   icon: 'fa-list',
-  //   label: '大纲',
-  //   tooltip: '文档大纲'
-  // }
 ])
 
 // 当前激活的导航项
@@ -77,6 +70,13 @@ function getItemClass(item: SidebarItem) {
       <div v-if="activeItem === 'explorer'" class="explorer-content">
         <slot name="explorer">
           <!-- 文档目录内容 -->
+        </slot>
+      </div>
+      
+      <!-- 设置面板内容 -->
+      <div v-if="activeItem === 'settings'" class="settings-content">
+        <slot name="settings">
+          <!-- 知识库设置内容 -->
         </slot>
       </div>
     </div>
@@ -155,6 +155,13 @@ function getItemClass(item: SidebarItem) {
 }
 
 .explorer-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.settings-content {
   flex: 1;
   display: flex;
   flex-direction: column;
