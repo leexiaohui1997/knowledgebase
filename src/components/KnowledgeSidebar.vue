@@ -101,20 +101,21 @@ function getItemClass(item: SidebarItem) {
   border-bottom: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding: 4px 0;
   flex-shrink: 0;
+  height: 100%;
 }
 
 .sidebar-item {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 2px 8px;
-  border-radius: 6px;
+  margin: 2px 6px;
+  border-radius: 4px;
   position: relative;
 }
 
@@ -141,7 +142,7 @@ function getItemClass(item: SidebarItem) {
 }
 
 .nav-icon {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 /* 内容区域样式 */
@@ -166,13 +167,13 @@ function getItemClass(item: SidebarItem) {
   }
   
   .sidebar-item {
-    width: 44px;
-    height: 44px;
-    margin: 2px 6px;
+    width: 32px;
+    height: 32px;
+    margin: 2px 5px;
   }
   
   .nav-icon {
-    font-size: 16px;
+    font-size: 12px;
   }
 }
 

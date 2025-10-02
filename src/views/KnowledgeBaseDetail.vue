@@ -352,10 +352,6 @@ if (import.meta.env.DEV) {
       >
         <template #explorer>
           <div class="explorer-panel">
-            <div class="panel-header">
-              <font-awesome-icon :icon="['fas', 'folder-open']" class="panel-icon" />
-              <h3>文档目录</h3>
-            </div>
             <div 
               class="tree-container" 
               :class="{ 'drag-over-root': isDraggingOverRoot }"
@@ -557,31 +553,6 @@ if (import.meta.env.DEV) {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.panel-header {
-  padding: 0 20px;
-  border-bottom: 1px solid #e0e0e0;
-  height: 61px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  background: white;
-}
-
-.panel-header h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.panel-icon {
-  color: #42b883;
 }
 
 .tree-container {
