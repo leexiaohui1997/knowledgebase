@@ -110,13 +110,10 @@ jobs:
       - name: 生成更新日志
         id: changelog
         run: |
-          # 获取最近的提交信息
+          # 获取最近的提交信息并直接输出到文件
           git log --pretty=format:"- %s" -10 > CHANGELOG.txt
-          # 生成唯一的随机分隔符
-          DELIMITER=$(openssl rand -hex 8)
-          echo "changelog<<$DELIMITER" >> $GITHUB_OUTPUT
-          cat CHANGELOG.txt >> $GITHUB_OUTPUT
-          echo "$DELIMITER" >> $GITHUB_OUTPUT
+          echo "Generated changelog:"
+          cat CHANGELOG.txt
 
       - name: 创建 Release
         uses: softprops/action-gh-release@v1
@@ -132,7 +129,7 @@ jobs:
             
             ### ✨ 更新内容
             
-            ${{ steps.changelog.outputs.changelog }}
+            本次更新包含以下改进和修复：
             
             ### 📝 说明
             
