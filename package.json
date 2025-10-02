@@ -53,6 +53,7 @@
       "dist/**/*",
       "dist-electron/**/*"
     ],
+    "publish": null,
     "mac": {
       "target": [
         {
