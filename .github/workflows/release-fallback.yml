@@ -1,4 +1,4 @@
-name: 构建并发布 Release
+name: 构建并发布 Release (备用方案)
 
 on:
   # 手动触发
@@ -12,15 +12,13 @@ on:
   # 推送标签时自动触发
   push:
     tags:
-      - 'v*'
+      - 'v*-fallback'
 
 jobs:
-  # macOS 构建任务
-  build-macos:
-    runs-on: macos-13
-    timeout-minutes: 60
-    retry:
-      max: 3
+  # 使用Ubuntu构建Electron应用（备用方案）
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     
     steps:
       - name: 检出代码
@@ -36,7 +34,6 @@ jobs:
 
       - name: 安装依赖
         run: npm ci
-        continue-on-error: false
 
       - name: 验证构建环境
         run: |
@@ -44,23 +41,26 @@ jobs:
           npm --version
           which node
 
-      - name: 构建应用
-        run: npm run build:mac
-        continue-on-error: false
+      - name: 构建Web版本
+        run: npm run build:web
+
+      - name: 构建Electron应用 (Linux)
+        run: npm run build:electron
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: macos-dmg
-          path: release/*.dmg
+          name: electron-builds
+          path: |
+            dist-web/
+            dist-electron/
           retention-days: 5
 
   # 创建 Release
   create-release:
-    needs: build-macos
+    needs: build-ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: needs.build-macos.result == 'success'
     
     permissions:
       contents: write
@@ -72,7 +72,7 @@ jobs:
       - name: 下载构建产物
         uses: actions/download-artifact@v4
         with:
-          name: macos-dmg
+          name: electron-builds
           path: ./artifacts
 
       - name: 获取版本号
@@ -97,13 +97,16 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
-          name: 知识库管理 ${{ steps.get_version.outputs.version }}
+          name: 知识库管理 ${{ steps.get_version.outputs.version }} (备用构建)
           body: |
             ## 🎉 知识库管理应用 ${{ steps.get_version.outputs.version }}
             
+            > ⚠️ 这是使用备用构建方案生成的Release，适用于macOS运行器不可用的情况
+            
             ### 📦 下载
             
-            - **macOS (M1/M2)**: 下载 `.dmg` 文件
+            - **Web版本**: 可直接在浏览器中使用
+            - **Electron源码**: 包含完整的Electron应用源码
             
             ### ✨ 更新内容
             
@@ -111,8 +114,8 @@ jobs:
             
             ### 📝 说明
             
-            - macOS 用户：下载 DMG 文件，双击安装
-            - 首次打开可能需要在系统设置中允许运行
+            - Web版本：直接在浏览器中打开 `dist-web/index.html`
+            - Electron版本：需要本地安装依赖后运行 `npm run dev`
             - 数据存储在本地，安全可靠
             
             ### 🌐 在线体验
@@ -125,7 +128,7 @@ jobs:
             - [使用指南](https://github.com/leexiaohui1997/knowledgebase/blob/main/README.md)
             - [功能特性](https://github.com/leexiaohui1997/knowledgebase/blob/main/docs/FEATURES.md)
           files: |
-            artifacts/*.dmg
+            artifacts/dist-web/**
+            artifacts/dist-electron/**
           draft: false
-          prerelease: false
-
+          prerelease: true
