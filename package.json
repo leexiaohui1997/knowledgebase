@@ -45,7 +45,7 @@
   },
   "build": {
     "appId": "com.knowledgebase.app",
-    "productName": "知识库管理",
+    "productName": "KnowledgeBase",
     "directories": {
       "output": "release"
     },
@@ -63,7 +63,7 @@
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.productivity",
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "知识库管理-${version}-${arch}.${ext}"
     },
     "win": {
       "target": "nsis",
