@@ -112,9 +112,11 @@ jobs:
         run: |
           # 获取最近的提交信息
           git log --pretty=format:"- %s" -10 > CHANGELOG.txt
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          # 生成唯一的随机分隔符
+          DELIMITER=$(openssl rand -hex 8)
+          echo "changelog<<$DELIMITER" >> $GITHUB_OUTPUT
           cat CHANGELOG.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "$DELIMITER" >> $GITHUB_OUTPUT
 
       - name: 创建 Release
         uses: softprops/action-gh-release@v1
