@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 export interface MenuItem {
   label: string
@@ -9,7 +9,7 @@ export interface MenuItem {
   disabled?: boolean
 }
 
-const props = defineProps<{
+defineProps<{
   items: MenuItem[]
 }>()
 

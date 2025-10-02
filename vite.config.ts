@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173
     },
-    base: isWeb ? '/knowledgebase/' : '/',  // Web 版 GitHub Pages 路径
+    base: isWeb ? '/knowledgebase/' : './',  // Web 版 GitHub Pages 路径，Electron 使用相对路径
     build: {
       outDir: isWeb ? 'dist-web' : 'dist'  // Web 版输出到 dist-web
     }
