@@ -98,10 +98,13 @@ function getItemClass(item: SidebarItem) {
   background: white;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
-  flex-direction: column;
-  padding: 4px 0;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
   flex-shrink: 0;
-  width: 48px;
+  width: 100%;
+  height: 60px;
 }
 
 .sidebar-item {
@@ -112,7 +115,7 @@ function getItemClass(item: SidebarItem) {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 2px 6px;
+  margin: 0 8px;
   border-radius: 4px;
   position: relative;
 }
@@ -130,11 +133,11 @@ function getItemClass(item: SidebarItem) {
 .sidebar-item.active::after {
   content: '';
   position: absolute;
-  right: -9px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 24px;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
   background-color: #42b883;
   border-radius: 2px;
 }
@@ -164,10 +167,15 @@ function getItemClass(item: SidebarItem) {
     width: 240px;
   }
   
+  .sidebar-nav {
+    height: 50px;
+    padding: 6px;
+  }
+  
   .sidebar-item {
     width: 32px;
     height: 32px;
-    margin: 2px 5px;
+    margin: 0 6px;
   }
   
   .nav-icon {
