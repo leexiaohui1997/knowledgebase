@@ -275,7 +275,7 @@ onBeforeUnmount(() => {
 
 .cherry-editor :deep(.cherry-previewer) {
   background: white !important;
-  padding: 20px !important;
+  padding: 0 !important;
 }
 
 /* 图片样式 - 控制最大宽度 */
