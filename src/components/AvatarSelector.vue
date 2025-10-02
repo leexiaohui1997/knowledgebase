@@ -47,22 +47,23 @@ function selectAvatar(emoji: string) {
 <style scoped>
 .avatar-selector {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
   max-width: 100%;
   box-sizing: border-box;
+  padding: 4px;
 }
 
 .avatar-option {
-  font-size: 20px;
-  padding: 8px;
+  font-size: 16px;
+  padding: 6px;
   text-align: center;
   cursor: pointer;
   border-radius: 6px;
   border: 2px solid transparent;
   transition: all 0.2s ease;
   background-color: white;
-  min-height: 40px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,14 +83,14 @@ function selectAvatar(emoji: string) {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .avatar-selector {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
   }
   
   .avatar-option {
-    font-size: 18px;
-    padding: 6px;
-    min-height: 36px;
+    font-size: 14px;
+    padding: 4px;
+    min-height: 28px;
   }
 }
 </style>
