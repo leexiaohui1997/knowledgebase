@@ -211,7 +211,7 @@ jobs:
           1. 打开"系统设置" → "隐私与安全性"
           2. 在"安全性"部分找到被阻止的应用
           3. 点击"仍要打开"按钮
-          4. 或者运行命令：`sudo xattr -rd com.apple.quarantine /Applications/KnowledgeBase.app`
+          4. 或者运行命令：`sudo xattr -rd com.apple.quarantine /Applications/知识库管理.app`
           EOF
           
           echo "Generated release body:"
