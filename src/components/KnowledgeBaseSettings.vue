@@ -47,11 +47,15 @@ async function handleSave() {
 
   isSaving.value = true
   try {
-    await store.updateKnowledgeBase(currentKnowledgeBase.value.id, {
+    // 创建更新后的知识库对象
+    const updatedKnowledgeBase = {
+      ...currentKnowledgeBase.value,
       name: formData.value.name.trim(),
       description: formData.value.description.trim(),
       avatar: formData.value.avatar.trim()
-    })
+    }
+    
+    await store.updateKnowledgeBase(updatedKnowledgeBase)
     
     alertSuccess('设置已保存')
   } catch (error) {
