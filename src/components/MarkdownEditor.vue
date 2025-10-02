@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   background: white;
-  height: 61px;
+  height: 60px;
   flex-shrink: 0;
   z-index: 10;
 }
