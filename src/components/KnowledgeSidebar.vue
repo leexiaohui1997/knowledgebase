@@ -168,7 +168,7 @@ function getItemClass(item: SidebarItem) {
   padding: 16px 20px;
   border-bottom: 1px solid #e0e0e0;
   background: #f8f9fa;
-  height: 60px;
+  height: 49px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
