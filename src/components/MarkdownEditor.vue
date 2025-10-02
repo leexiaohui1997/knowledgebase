@@ -36,8 +36,9 @@ async function loadImagesForDisplay(content: string): Promise<string> {
     const imagePath = `local-image://${fileName}`
     
     try {
-      // 读取图片的 base64 数据
-      const base64Data = await storage.readImage(fileName)
+      // 使用新的图片管理器读取图片
+      const imageManager = storage.getImageManager()
+      const base64Data = await imageManager.getImage(fileName)
       if (base64Data) {
         // 存储映射关系：路径 -> base64 数据
         imageMapping.set(imagePath, base64Data)

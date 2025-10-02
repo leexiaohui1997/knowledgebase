@@ -18,9 +18,13 @@ const imagePreviewMap = ref<Map<string, string>>(new Map())
 // 加载图片预览
 onMounted(async () => {
   const storage = getStorage()
+  const imageManager = storage.getImageManager()
+  
   for (const imagePath of props.images) {
     try {
-      const base64Data = await storage.readImage(imagePath)
+      // 提取图片ID（去掉 local-image:// 前缀）
+      const imageId = imagePath.replace('local-image://', '')
+      const base64Data = await imageManager.getImage(imageId)
       imagePreviewMap.value.set(imagePath, base64Data)
     } catch (error) {
       console.error('加载图片预览失败:', imagePath, error)
