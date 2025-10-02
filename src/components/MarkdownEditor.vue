@@ -125,7 +125,12 @@ async function initEditor() {
         if (src.startsWith('local-image://')) {
           const base64Data = imageMapping.get(src)
           if (base64Data) {
-            return { srcProp, src: `data:image/png;base64,${base64Data}` }
+            // 检查 base64Data 是否已经包含 data: 前缀
+            if (base64Data.startsWith('data:')) {
+              return { srcProp, src: base64Data }
+            } else {
+              return { srcProp, src: `data:image/png;base64,${base64Data}` }
+            }
           }
         }
         return { srcProp, src }

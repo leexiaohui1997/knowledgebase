@@ -47,7 +47,18 @@ export class LocalImageProvider implements IImageProvider {
 
   async getImage(id: string): Promise<string> {
     const imagePath = this.buildImagePath(id)
-    return this.storage.readImage(imagePath)
+    const fullBase64Data = await this.storage.readImage(imagePath)
+    
+    // 如果数据已经包含 data: 前缀，则提取纯 base64 部分
+    if (fullBase64Data.startsWith('data:')) {
+      const commaIndex = fullBase64Data.indexOf(',')
+      if (commaIndex !== -1) {
+        return fullBase64Data.substring(commaIndex + 1)
+      }
+    }
+    
+    // 否则直接返回数据
+    return fullBase64Data
   }
 
   async deleteImage(id: string): Promise<void> {
