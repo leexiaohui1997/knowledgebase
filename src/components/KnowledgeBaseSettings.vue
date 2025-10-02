@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useKnowledgeStore } from '@/stores/knowledge'
 import { alert, confirm, alertSuccess } from '@/composables/useAlert'
+import AvatarSelector from '@/components/AvatarSelector.vue'
 import type { KnowledgeBase } from '@/types'
 
 const router = useRouter()
@@ -106,15 +107,8 @@ onMounted(() => {
       <!-- 基本信息 -->
       <div class="form-section">
         <div class="form-group">
-          <label for="avatar">图标</label>
-          <input
-            id="avatar"
-            v-model="formData.avatar"
-            type="text"
-            placeholder="输入图标（如：📚）"
-            class="form-input"
-            maxlength="2"
-          />
+          <label>图标</label>
+          <AvatarSelector v-model="formData.avatar" />
         </div>
 
         <div class="form-group">
