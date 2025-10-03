@@ -151,11 +151,25 @@ export function registerIpcHandlers() {
           usedImages.add(audioMdMatch[2])
         }
 
+        // Markdown 视频语法：!video[](...)（兼容两种协议）
+        const mdVideoRegex = /!video\[[^\]]*\]\((local-(?:media|image):\/\/)([^)]+)\)/g
+        let videoMdMatch
+        while ((videoMdMatch = mdVideoRegex.exec(doc.content)) !== null) {
+          usedImages.add(videoMdMatch[2])
+        }
+
         // HTML audio/source 标签：src="local-media://..." 或 local-image://...
         const htmlAudioRegex = /<(?:audio|source)[^>]*src=["'](local-(?:media|image):\/\/)([^"'>]+)["'][^>]*>/gi
         let audioMatch
         while ((audioMatch = htmlAudioRegex.exec(doc.content)) !== null) {
           usedImages.add(audioMatch[2])
+        }
+
+        // HTML video 标签：src="local-media://..." 或 local-image://...
+        const htmlVideoRegex = /<video[^>]*src=["'](local-(?:media|image):\/\/)([^"'>]+)["'][^>]*>/gi
+        let videoMatch
+        while ((videoMatch = htmlVideoRegex.exec(doc.content)) !== null) {
+          usedImages.add(videoMatch[2])
         }
       }
     })

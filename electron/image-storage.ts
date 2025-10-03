@@ -18,17 +18,17 @@ export function getImagesPath(): string {
 // 保存图片文件
 export function saveImage(base64Data: string, knowledgeBaseId: string): string {
   try {
-    // 解析 base64 数据（支持 image 与 audio），放宽 MIME 匹配
-    // 示例：data:audio/mpeg;base64,xxx 或 data:audio/x-m4a;base64,xxx 或 data:audio/ogg;codecs=opus;base64,xxx
+    // 解析 base64 数据（支持 image、audio 与 video），放宽 MIME 匹配
+    // 示例：data:video/mp4;base64,xxx 或 data:video/webm;base64,xxx 或 data:audio/mpeg;base64,xxx
     const urlMatch = base64Data.match(/^data:([^;]+);base64,(.+)$/)
     if (!urlMatch) {
       throw new Error('Invalid base64 media data')
     }
-    const mime = urlMatch[1] // e.g. image/png, audio/mpeg, audio/x-m4a, audio/ogg;codecs=opus
+    const mime = urlMatch[1] // e.g. image/png, audio/mpeg, video/mp4
     const data = urlMatch[2]
 
-    // 仅允许 image/* 或 audio/*
-    if (!/^image\//.test(mime) && !/^audio\//.test(mime)) {
+    // 仅允许 image/*、audio/* 或 video/*
+    if (!/^image\//.test(mime) && !/^audio\//.test(mime) && !/^video\//.test(mime)) {
       throw new Error('Unsupported media mime type: ' + mime)
     }
 
@@ -59,6 +59,21 @@ export function saveImage(base64Data: string, knowledgeBaseId: string): string {
         // 提取 audio/<ext>
         const m = lowerMime.match(/^audio\/([a-z0-9\-]+)/)
         ext = m?.[1] || 'audio'
+      }
+    } else if (lowerMime.startsWith('video/')) {
+      // 常见视频扩展
+      if (lowerMime.includes('mp4')) ext = 'mp4'
+      else if (lowerMime.includes('webm')) ext = 'webm'
+      else if (lowerMime.includes('ogg')) ext = 'ogv'
+      else if (lowerMime.includes('avi')) ext = 'avi'
+      else if (lowerMime.includes('mov') || lowerMime.includes('quicktime')) ext = 'mov'
+      else if (lowerMime.includes('wmv')) ext = 'wmv'
+      else if (lowerMime.includes('flv')) ext = 'flv'
+      else if (lowerMime.includes('mkv')) ext = 'mkv'
+      else {
+        // 提取 video/<ext>
+        const m = lowerMime.match(/^video\/([a-z0-9\-]+)/)
+        ext = m?.[1] || 'video'
       }
     }
     
@@ -128,8 +143,8 @@ export function getAllImages(): string[] {
   try {
     const imagesPath = getImagesPath()
     const files = fs.readdirSync(imagesPath)
-    // 过滤出图片与音频文件（保持旧函数名以兼容调用）
-    return files.filter(file => /\.(png|jpg|jpeg|gif|webp|svg|mp3|wav|ogg|m4a|aac|flac)$/i.test(file))
+    // 过滤出图片、音频与视频文件（保持旧函数名以兼容调用）
+    return files.filter(file => /\.(png|jpg|jpeg|gif|webp|svg|mp3|wav|ogg|m4a|aac|flac|mp4|webm|ogv|avi|mov|wmv|flv|mkv)$/i.test(file))
   } catch (error) {
     console.error('Error getting all images:', error)
     return []

@@ -250,7 +250,7 @@ export class WebStorage implements IStorage {
       allDocuments.push(...docs)
     })
 
-    // 提取所有文档中引用的媒体（兼容 local-image 与 local-media；支持图片 markdown、音频 markdown 与音频标签）
+    // 提取所有文档中引用的媒体（兼容 local-image 与 local-media；支持图片、音频、视频 markdown 与 HTML 标签）
     const usedImages = new Set<string>()
     
     allDocuments.forEach(doc => {
@@ -258,7 +258,9 @@ export class WebStorage implements IStorage {
         // 为每个文档创建新的正则表达式实例，避免 lastIndex 问题
         const imageRegex = /!\[([^\]]*)\]\((local-(?:media|image):\/\/[^)]+)\)/g
         const audioMarkdownRegex = /!audio\[([^\]]*)\]\((local-(?:media|image):\/\/[^)]+)\)/g
+        const videoMarkdownRegex = /!video\[([^\]]*)\]\((local-(?:media|image):\/\/[^)]+)\)/g
         const audioHtmlRegex = /<audio[^>]*src=\"(local-(?:media|image):\/\/[^\"]+)\"[^>]*>(?:<\/audio>)?/gi
+        const videoHtmlRegex = /<video[^>]*src=\"(local-(?:media|image):\/\/[^\"]+)\"[^>]*>(?:<\/video>)?/gi
 
         let imgMatch
         while ((imgMatch = imageRegex.exec(doc.content)) !== null) {
@@ -274,16 +276,30 @@ export class WebStorage implements IStorage {
           usedImages.add(`local-media://${id}`)
         }
 
+        let videoMdMatch
+        while ((videoMdMatch = videoMarkdownRegex.exec(doc.content)) !== null) {
+          const fullPath = videoMdMatch[2]
+          const id = fullPath.replace('local-media://', '').replace('local-image://', '')
+          usedImages.add(`local-media://${id}`)
+        }
+
         let audioHtmlMatch
         while ((audioHtmlMatch = audioHtmlRegex.exec(doc.content)) !== null) {
           const fullPath = audioHtmlMatch[1]
           const id = fullPath.replace('local-media://', '').replace('local-image://', '')
           usedImages.add(`local-media://${id}`)
         }
+
+        let videoHtmlMatch
+        while ((videoHtmlMatch = videoHtmlRegex.exec(doc.content)) !== null) {
+          const fullPath = videoHtmlMatch[1]
+          const id = fullPath.replace('local-media://', '').replace('local-image://', '')
+          usedImages.add(`local-media://${id}`)
+        }
       }
     })
     
-    console.log('扫描结果 - 所有文件(图片/音频):', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
+    console.log('扫描结果 - 所有文件(图片/音频/视频):', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
     console.log('已使用的文件:', Array.from(usedImages))
 
     // 找出未使用的图片

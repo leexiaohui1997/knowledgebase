@@ -43,7 +43,8 @@ import {
   faCheck,
   faExclamation,
   faTimes,
-  faInfo
+  faInfo,
+  faVideo
 } from '@fortawesome/free-solid-svg-icons'
 
 // 添加图标到库
@@ -83,7 +84,8 @@ library.add(
   faCheck,
   faExclamation,
   faTimes,
-  faInfo
+  faInfo,
+  faVideo
 )
 
 const app = createApp(App)
