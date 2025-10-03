@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import ImageCleanupConfirm from './ImageCleanupConfirm.vue'
 import { getStorage } from '@/storage'
@@ -21,7 +21,7 @@ const isScanning = ref(false)
 const unusedImages = ref<string[]>([])
 const showCleanupConfirm = ref(false)
 
-// 开始扫描未使用的图片
+// 开始扫描未使用的文件（图片/音频）
 async function scanUnusedImages() {
   isScanning.value = true
   try {
@@ -32,26 +32,26 @@ async function scanUnusedImages() {
     if (unused.length > 0) {
       showCleanupConfirm.value = true
     } else {
-      alertSuccess('没有发现未使用的图片！')
+      alertSuccess('没有发现未使用的文件！')
     }
   } catch (error) {
-    console.error('扫描图片失败:', error)
+    console.error('扫描文件失败:', error)
     alertError('扫描失败，请重试')
   } finally {
     isScanning.value = false
   }
 }
 
-// 确认清理图片
+// 确认清理文件
 async function confirmCleanup() {
   try {
     const storage = getStorage()
-    await storage.cleanupUnusedImages(unusedImages.value)
-    alertSuccess(`成功清理 ${unusedImages.value.length} 张图片！`)
+    await storage.cleanupUnusedImages([...unusedImages.value])
+    alertSuccess(`成功清理 ${unusedImages.value.length} 个文件！`)
     unusedImages.value = []
     showCleanupConfirm.value = false
   } catch (error) {
-    console.error('清理图片失败:', error)
+    console.error('清理文件失败:', error)
     alertError('清理失败，请重试')
   }
 }
@@ -69,7 +69,7 @@ function closeModal() {
 </script>
 
 <template>
-  <div v-if="show" class="settings-overlay" @click="closeModal">
+  <div v-if="props.show" class="settings-overlay" @click="closeModal">
     <div class="settings-modal" @click.stop>
       <!-- 头部 -->
       <div class="settings-header">
@@ -101,15 +101,15 @@ function closeModal() {
           <div v-if="activeTab === 'general'" class="settings-section">
             <h3>通用设置</h3>
 
-            <!-- 清理图片 -->
+            <!-- 清理文件（图片/音频） -->
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-title">
                   <FontAwesomeIcon icon="trash" />
-                  清理图片
+                  清理文件
                 </div>
                 <div class="setting-description">
-                  扫描并删除未被使用的图片，释放存储空间
+                  扫描并删除未被使用的文件（图片/音频），释放存储空间
                 </div>
               </div>
               <button
@@ -129,7 +129,7 @@ function closeModal() {
       </div>
     </div>
 
-    <!-- 图片清理确认弹窗 -->
+    <!-- 文件清理确认弹窗（兼容图片与音频预览） -->
     <ImageCleanupConfirm
       v-if="showCleanupConfirm"
       :images="unusedImages"

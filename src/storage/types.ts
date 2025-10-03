@@ -4,7 +4,7 @@
  */
 
 import type { KnowledgeBase, DocumentNode } from '../types'
-import type { IImageManager } from './image-provider'
+import type { IMediaManager } from './media-provider'
 
 /**
  * 存储数据结构
@@ -37,8 +37,8 @@ export interface IStorage {
   getUnusedImages(): Promise<string[]> // 获取未使用的图片列表
   cleanupUnusedImages(imagePaths: string[]): Promise<void> // 清理指定的图片
 
-  // 图片管理器
-  getImageManager(): IImageManager
+  // 媒体管理器（新接口）
+  getMediaManager(): IMediaManager
 }
 
 /**

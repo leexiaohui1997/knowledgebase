@@ -4,18 +4,18 @@
 
 import type { IStorage } from './types'
 import type { KnowledgeBase, DocumentNode } from '../types'
-import { ImageManager } from './image-manager'
-import { LocalImageProvider } from './local-image-provider'
-import type { IImageManager } from './image-provider'
+import { MediaManager } from './media-manager'
+import { LocalMediaProvider } from './local-media-provider'
+import type { IMediaManager } from './media-provider'
 
 export class ElectronStorage implements IStorage {
-  private imageManager: IImageManager
+  private mediaManager: IMediaManager
 
   constructor() {
-    this.imageManager = new ImageManager()
-    // 注册本地图片提供者
-    const localProvider = new LocalImageProvider(this)
-    this.imageManager.registerProvider(localProvider)
+    this.mediaManager = new MediaManager()
+    // 注册本地媒体提供者
+    const localMediaProvider = new LocalMediaProvider(this)
+    this.mediaManager.registerProvider(localMediaProvider)
   }
 
   private get api() {
@@ -64,7 +64,9 @@ export class ElectronStorage implements IStorage {
   // ==================== 图片操作 ====================
 
   async saveImage(knowledgeBaseId: string, imageData: string): Promise<string> {
-    return this.api.saveImage(imageData, knowledgeBaseId)
+    const fileName = await this.api.saveImage(imageData, knowledgeBaseId)
+    // 统一为新协议前缀，前端将以 local-media:// 识别与渲染
+    return `local-media://${fileName}`
   }
 
   async readImage(imagePath: string): Promise<string> {
@@ -91,8 +93,8 @@ export class ElectronStorage implements IStorage {
 
   // ==================== 图片管理器 ====================
 
-  getImageManager(): IImageManager {
-    return this.imageManager
+  getMediaManager(): IMediaManager {
+    return this.mediaManager
   }
 }
 

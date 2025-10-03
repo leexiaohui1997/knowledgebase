@@ -12,27 +12,52 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-// 图片预览数据
+// 媒体预览数据（图片/音频）
 const imagePreviewMap = ref<Map<string, string>>(new Map())
 
-// 加载图片预览
+// 音频播放状态与引用
+const playing = ref<Record<string, boolean>>({})
+const audioRefs = ref<Record<string, HTMLAudioElement | null>>({})
+
+function setAudioRef(path: string, el: HTMLAudioElement | null) {
+  audioRefs.value[path] = el
+}
+
+function pauseOthers(exceptPath?: string) {
+  const refs = audioRefs.value
+  for (const key in refs) {
+    if (!Object.prototype.hasOwnProperty.call(refs, key)) continue
+    if (key === exceptPath) continue
+    const other = refs[key]
+    if (other) {
+      try {
+        other.pause()
+      } catch {}
+    }
+    playing.value[key] = false
+  }
+}
+
+// 加载媒体预览
 onMounted(async () => {
   const storage = getStorage()
-  const imageManager = storage.getImageManager()
+  // 优先使用新的媒体管理器，如果不可用则回退到图片管理器
+  const mediaManager = storage.getMediaManager()
   
   for (const imagePath of props.images) {
     try {
-      // 提取图片ID（去掉 local-image:// 前缀）
-      const imageId = imagePath.replace('local-image://', '')
-      const base64Data = await imageManager.getImage(imageId)
+      // 提取媒体ID（兼容 local-media 与旧的 local-image 前缀）
+      const imageId = imagePath.replace('local-media://', '').replace('local-image://', '')
+      // 使用媒体管理器的 getMedia 方法替代旧的图片接口
+      const base64Data = await mediaManager.getMedia(imageId)
       imagePreviewMap.value.set(imagePath, base64Data)
     } catch (error) {
-      console.error('加载图片预览失败:', imagePath, error)
+      console.error('加载媒体预览失败:', imagePath, error)
     }
   }
 })
 
-// 获取图片预览 URL
+// 获取媒体预览 URL（图片/音频）
 function getImagePreview(imagePath: string): string {
   const base64 = imagePreviewMap.value.get(imagePath)
   if (base64) {
@@ -40,18 +65,47 @@ function getImagePreview(imagePath: string): string {
     if (base64.startsWith('data:')) {
       return base64
     }
-    // 否则添加前缀
+    // 否则添加默认图片前缀
     return `data:image/png;base64,${base64}`
   }
   return ''
 }
 
-// 格式化文件大小
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+function isAudio(imagePath: string): boolean {
+  const preview = getImagePreview(imagePath)
+  return preview.startsWith('data:audio')
 }
+
+function togglePlay(imagePath: string) {
+  const audio = audioRefs.value[imagePath]
+  if (!audio) return
+  const nowPlaying = !!playing.value[imagePath]
+  if (nowPlaying) {
+    audio.pause()
+    playing.value[imagePath] = false
+  } else {
+    // 播放前暂停其他音频，确保单实例播放
+    pauseOthers(imagePath)
+    audio.play()
+    playing.value[imagePath] = true
+  }
+}
+
+function onEnded(imagePath: string) {
+  playing.value[imagePath] = false
+}
+
+function onPlay(imagePath: string) {
+  // 事件级别也强制互斥，避免外部调用造成并发播放
+  pauseOthers(imagePath)
+  playing.value[imagePath] = true
+}
+
+function onPause(imagePath: string) {
+  playing.value[imagePath] = false
+}
+
+
 </script>
 
 <template>
@@ -61,7 +115,7 @@ function formatFileSize(bytes: number): string {
       <div class="confirm-header">
         <h3>
           <FontAwesomeIcon icon="triangle-exclamation" class="warning-icon" />
-          确认清理图片
+          确认清理文件
         </h3>
         <button class="close-btn" @click="emit('cancel')">
           <FontAwesomeIcon icon="xmark" />
@@ -71,15 +125,15 @@ function formatFileSize(bytes: number): string {
       <!-- 提示信息 -->
       <div class="confirm-message">
         <p>
-          发现 <strong>{{ images.length }}</strong> 张未使用的图片，占用存储空间。
+          发现 <strong>{{ images.length }}</strong> 个未使用的文件（图片/音频），占用存储空间。
         </p>
         <p class="warning-text">
           <FontAwesomeIcon icon="circle-exclamation" />
-          删除后无法恢复，请确认以下图片确实不再需要。
+          删除后无法恢复，请确认以下文件确实不再需要。
         </p>
       </div>
 
-      <!-- 图片列表 -->
+      <!-- 文件列表（图片/音频） -->
       <div class="images-list">
         <div
           v-for="(imagePath, index) in images"
@@ -87,18 +141,39 @@ function formatFileSize(bytes: number): string {
           class="image-item"
         >
           <div class="image-preview">
-            <img
-              v-if="imagePreviewMap.has(imagePath)"
-              :src="getImagePreview(imagePath)"
-              :alt="imagePath"
-            />
+            <template v-if="imagePreviewMap.has(imagePath)">
+              <img
+                v-if="getImagePreview(imagePath).startsWith('data:image')"
+                :src="getImagePreview(imagePath)"
+                :alt="imagePath"
+              />
+              <div
+                v-else-if="getImagePreview(imagePath).startsWith('data:audio')"
+                class="audio-preview"
+              >
+                <button class="audio-btn" @click="togglePlay(imagePath)">
+                  <FontAwesomeIcon :icon="playing[imagePath] ? 'pause' : 'play'" />
+                </button>
+                <!-- 隐藏的原生音频元素，用于实际播放控制 -->
+                <audio
+                  :src="getImagePreview(imagePath)"
+                  :ref="el => setAudioRef(imagePath, el as HTMLAudioElement)"
+                  @ended="onEnded(imagePath)"
+                  @play="onPlay(imagePath)"
+                  @pause="onPause(imagePath)"
+                  preload="metadata"
+                  class="audio-hidden"
+                />
+              </div>
+              <div v-else class="preview-unknown">无法预览的文件类型</div>
+            </template>
             <div v-else class="preview-loading">
               <FontAwesomeIcon icon="spinner" spin />
             </div>
           </div>
           <div class="image-info">
             <div class="image-path">
-              <FontAwesomeIcon icon="image" />
+              <FontAwesomeIcon :icon="isAudio(imagePath) ? 'volume-high' : 'image'" />
               <span>{{ imagePath }}</span>
             </div>
             <div class="image-index">
@@ -262,9 +337,50 @@ function formatFileSize(bytes: number): string {
   object-fit: cover;
 }
 
+.image-preview audio {
+  width: 100%;
+}
+
+.audio-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: all 0.2s;
+  font-size: 18px;
+}
+
+.audio-btn:hover {
+  transform: scale(1.05);
+}
+
+.audio-hidden {
+  display: none;
+}
+
 .preview-loading {
   color: #999;
   font-size: 20px;
+}
+
+.preview-unknown {
+  color: #999;
+  font-size: 12px;
 }
 
 .image-info {

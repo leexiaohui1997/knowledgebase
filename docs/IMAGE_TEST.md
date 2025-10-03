@@ -19,7 +19,7 @@ fileUpload 回调触发
     ↓
 用户点击保存
     ↓
-将 base64 转换为 local-image://文件名
+将 base64 转换为 local-media://文件名
     ↓
 保存到数据库（体积小）✓
     ↓
@@ -122,12 +122,12 @@ ls -lh ~/Library/Application\ Support/vite-vue3-electron-demo/images/
 
 打开 data.json 查看文档内容：
 ```bash
-cat ~/Library/Application\ Support/vite-vue3-electron-demo/data.json | grep "local-image"
+cat ~/Library/Application\ Support/vite-vue3-electron-demo/data.json | grep "local-media"
 ```
 
 应该看到：
 ```
-"content": "# 标题\n\n![图片](local-image://1759300122184_..._.png)\n\n文字..."
+"content": "# 标题\n\n![图片](local-media://1759300122184_..._.png)\n\n文字..."
 ```
 
 ---
@@ -152,7 +152,7 @@ cat ~/Library/Application\ Support/vite-vue3-electron-demo/data.json | grep "loc
 - [x] 文件名格式正确
 
 ### 数据库
-- [x] 文档内容包含 `local-image://`
+- [x] 文档内容包含 `local-media://`
 - [x] 不包含长长的 base64
 - [x] 文档体积合理
 
@@ -173,8 +173,8 @@ cat ~/Library/Application\ Support/vite-vue3-electron-demo/data.json | grep "loc
    - 可以备份
 
 3. **映射机制** - 双向转换
-   - 加载时：`local-image://` → base64
-   - 保存时：base64 → `local-image://`
+   - 加载时：`local-media://` → base64（兼容旧的 `local-image://`）
+   - 保存时：base64 → `local-media://`
    - Map 存储对应关系
 
 ---

@@ -24,6 +24,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getImagePath: (fileName: string) => ipcRenderer.invoke('get-image-path', fileName),
   // 图片清理操作
   getUnusedImages: () => ipcRenderer.invoke('get-unused-images'),
-  cleanupUnusedImages: (imagePaths: string[]) => ipcRenderer.invoke('cleanup-unused-images', imagePaths)
+  cleanupUnusedImages: (imagePaths: string[]) => {
+    const safeArray = Array.isArray(imagePaths) ? [...imagePaths] : []
+    return ipcRenderer.invoke('cleanup-unused-images', safeArray)
+  }
 })
 

@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { useKnowledgeStore } from '@/stores/knowledge'
 import { alert, confirm, alertSuccess } from '@/composables/useAlert'
 import AvatarSelector from '@/components/AvatarSelector.vue'
-import type { KnowledgeBase } from '@/types'
 
 const router = useRouter()
 const store = useKnowledgeStore()

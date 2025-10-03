@@ -84,14 +84,38 @@ export function registerIpcHandlers() {
     return saveImage(base64Data, knowledgeBaseId)
   })
 
-  // 读取图片
-  ipcMain.handle('read-image', (_, fileName) => {
+  // 读取媒体（兼容 local-media:// 与 local-image:// 前缀），返回 data URL
+  ipcMain.handle('read-image', (_, fileNameOrPath) => {
+    const fileName = String(fileNameOrPath)
+      .replace('local-media://', '')
+      .replace('local-image://', '')
     const buffer = readImage(fileName)
-    return buffer ? buffer.toString('base64') : null
+    if (!buffer) return null
+
+    // 基于扩展名推断 MIME 类型
+    const lower = fileName.toLowerCase()
+    let mime = 'image/png'
+    if (lower.endsWith('.png')) mime = 'image/png'
+    else if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) mime = 'image/jpeg'
+    else if (lower.endsWith('.gif')) mime = 'image/gif'
+    else if (lower.endsWith('.webp')) mime = 'image/webp'
+    else if (lower.endsWith('.svg')) mime = 'image/svg+xml'
+    else if (lower.endsWith('.mp3')) mime = 'audio/mpeg'
+    else if (lower.endsWith('.wav')) mime = 'audio/wav'
+    else if (lower.endsWith('.ogg')) mime = 'audio/ogg'
+    else if (lower.endsWith('.m4a')) mime = 'audio/mp4'
+    else if (lower.endsWith('.aac')) mime = 'audio/aac'
+    else if (lower.endsWith('.flac')) mime = 'audio/flac'
+
+    const base64 = buffer.toString('base64')
+    return `data:${mime};base64,${base64}`
   })
 
-  // 删除图片
-  ipcMain.handle('delete-image', (_, fileName) => {
+  // 删除图片（兼容 local-media:// 与 local-image:// 前缀）
+  ipcMain.handle('delete-image', (_, fileNameOrPath) => {
+    const fileName = String(fileNameOrPath)
+      .replace('local-media://', '')
+      .replace('local-image://', '')
     return deleteImage(fileName)
   })
 
@@ -100,7 +124,7 @@ export function registerIpcHandlers() {
     return getImagePath(fileName)
   })
 
-  // 获取未使用的图片
+  // 获取未使用的图片（兼容两种协议扫描）
   ipcMain.handle('get-unused-images', () => {
     const data = readData()
     const allDocuments = data.documents || []
@@ -113,29 +137,46 @@ export function registerIpcHandlers() {
     
     allDocuments.forEach((doc: any) => {
       if (doc.content) {
-        // 为每个文档创建新的正则表达式实例，避免 lastIndex 问题
-        const imageRegex = /!\[([^\]]*)\]\(local-image:\/\/([^)]+)\)/g
-        let match
-        while ((match = imageRegex.exec(doc.content)) !== null) {
-          usedImages.add(match[2])
+        // Markdown 图片语法：![](...)（兼容两种协议）
+        const mdImageRegex = /!\[[^\]]*\]\((local-(?:media|image):\/\/)([^)]+)\)/g
+        let imgMatch
+        while ((imgMatch = mdImageRegex.exec(doc.content)) !== null) {
+          usedImages.add(imgMatch[2])
+        }
+
+        // Markdown 音频语法：!audio[](...)（兼容两种协议）
+        const mdAudioRegex = /!audio\[[^\]]*\]\((local-(?:media|image):\/\/)([^)]+)\)/g
+        let audioMdMatch
+        while ((audioMdMatch = mdAudioRegex.exec(doc.content)) !== null) {
+          usedImages.add(audioMdMatch[2])
+        }
+
+        // HTML audio/source 标签：src="local-media://..." 或 local-image://...
+        const htmlAudioRegex = /<(?:audio|source)[^>]*src=["'](local-(?:media|image):\/\/)([^"'>]+)["'][^>]*>/gi
+        let audioMatch
+        while ((audioMatch = htmlAudioRegex.exec(doc.content)) !== null) {
+          usedImages.add(audioMatch[2])
         }
       }
     })
     
-    console.log('扫描结果 - 所有图片:', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
-    console.log('已使用的图片:', Array.from(usedImages))
+    console.log('扫描结果 - 所有媒体文件:', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
+    console.log('已使用的媒体文件:', Array.from(usedImages))
     
     // 找出未使用的图片
     const unusedImages = allImages.filter(image => !usedImages.has(image))
     
-    // 返回带 local-image:// 前缀的路径
-    return unusedImages.map(image => `local-image://${image}`)
+    // 返回带 local-media:// 前缀的路径（默认新协议）
+    return unusedImages.map(image => `local-media://${image}`)
   })
 
   // 清理未使用的图片
   ipcMain.handle('cleanup-unused-images', (_, imagePaths: string[]) => {
-    // 提取文件名（去掉 local-image:// 前缀）
-    const fileNames = imagePaths.map(path => path.replace('local-image://', ''))
+    // 提取文件名（去掉两种前缀）
+    const fileNames = imagePaths.map(path => String(path)
+      .replace('local-media://', '')
+      .replace('local-image://', '')
+    )
     const deletedCount = cleanupImages(fileNames)
     return deletedCount
   })

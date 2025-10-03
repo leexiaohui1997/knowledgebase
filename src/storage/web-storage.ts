@@ -4,9 +4,9 @@
 
 import type { IStorage, StorageData } from './types'
 import type { KnowledgeBase, DocumentNode } from '../types'
-import { ImageManager } from './image-manager'
-import { LocalImageProvider } from './local-image-provider'
-import type { IImageManager } from './image-provider'
+import { MediaManager } from './media-manager'
+import { LocalMediaProvider } from './local-media-provider'
+import type { IMediaManager } from './media-provider'
 
 const DB_NAME = 'KnowledgeBaseDB'
 const DB_VERSION = 1
@@ -15,13 +15,13 @@ const STORE_IMAGES = 'images' // 存储图片
 
 export class WebStorage implements IStorage {
   private db: IDBDatabase | null = null
-  private imageManager: IImageManager
+  private mediaManager: IMediaManager
 
   constructor() {
-    this.imageManager = new ImageManager()
-    // 注册本地图片提供者
-    const localProvider = new LocalImageProvider(this)
-    this.imageManager.registerProvider(localProvider)
+    this.mediaManager = new MediaManager()
+    // 注册本地媒体提供者
+    const localMediaProvider = new LocalMediaProvider(this)
+    this.mediaManager.registerProvider(localMediaProvider)
   }
 
   /**
@@ -179,7 +179,7 @@ export class WebStorage implements IStorage {
       const store = transaction.objectStore(STORE_IMAGES)
       const request = store.put({ id: imageId, data: imageData })
 
-      request.onsuccess = () => resolve(`local-image://${imageId}`)
+      request.onsuccess = () => resolve(`local-media://${imageId}`)
       request.onerror = () => reject(request.error)
     })
   }
@@ -187,8 +187,8 @@ export class WebStorage implements IStorage {
   async readImage(imagePath: string): Promise<string> {
     const db = await this.initDB()
     
-    // 提取 imageId
-    const imageId = imagePath.replace('local-image://', '')
+    // 提取媒体ID（兼容旧的 local-image 协议）
+    const imageId = imagePath.replace('local-media://', '').replace('local-image://', '')
     
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORE_IMAGES], 'readonly')
@@ -210,8 +210,8 @@ export class WebStorage implements IStorage {
   async deleteImage(imagePath: string): Promise<void> {
     const db = await this.initDB()
     
-    // 提取 imageId
-    const imageId = imagePath.replace('local-image://', '')
+    // 提取媒体ID（兼容旧的 local-image 协议）
+    const imageId = imagePath.replace('local-media://', '').replace('local-image://', '')
     
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORE_IMAGES], 'readwrite')
@@ -236,7 +236,7 @@ export class WebStorage implements IStorage {
 
       request.onsuccess = () => {
         const keys = request.result as string[]
-        resolve(keys.map(key => `local-image://${key}`))
+        resolve(keys.map(key => `local-media://${key}`))
       }
       request.onerror = () => reject(request.error)
     })
@@ -250,22 +250,41 @@ export class WebStorage implements IStorage {
       allDocuments.push(...docs)
     })
 
-    // 提取所有文档中引用的图片
+    // 提取所有文档中引用的媒体（兼容 local-image 与 local-media；支持图片 markdown、音频 markdown 与音频标签）
     const usedImages = new Set<string>()
     
     allDocuments.forEach(doc => {
       if (doc.content) {
         // 为每个文档创建新的正则表达式实例，避免 lastIndex 问题
-        const imageRegex = /!\[([^\]]*)\]\((local-image:\/\/[^)]+)\)/g
-        let match
-        while ((match = imageRegex.exec(doc.content)) !== null) {
-          usedImages.add(match[2])
+        const imageRegex = /!\[([^\]]*)\]\((local-(?:media|image):\/\/[^)]+)\)/g
+        const audioMarkdownRegex = /!audio\[([^\]]*)\]\((local-(?:media|image):\/\/[^)]+)\)/g
+        const audioHtmlRegex = /<audio[^>]*src=\"(local-(?:media|image):\/\/[^\"]+)\"[^>]*>(?:<\/audio>)?/gi
+
+        let imgMatch
+        while ((imgMatch = imageRegex.exec(doc.content)) !== null) {
+          const fullPath = imgMatch[2]
+          const id = fullPath.replace('local-media://', '').replace('local-image://', '')
+          usedImages.add(`local-media://${id}`)
+        }
+
+        let audioMdMatch
+        while ((audioMdMatch = audioMarkdownRegex.exec(doc.content)) !== null) {
+          const fullPath = audioMdMatch[2]
+          const id = fullPath.replace('local-media://', '').replace('local-image://', '')
+          usedImages.add(`local-media://${id}`)
+        }
+
+        let audioHtmlMatch
+        while ((audioHtmlMatch = audioHtmlRegex.exec(doc.content)) !== null) {
+          const fullPath = audioHtmlMatch[1]
+          const id = fullPath.replace('local-media://', '').replace('local-image://', '')
+          usedImages.add(`local-media://${id}`)
         }
       }
     })
     
-    console.log('扫描结果 - 所有图片:', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
-    console.log('已使用的图片:', Array.from(usedImages))
+    console.log('扫描结果 - 所有文件(图片/音频):', allImages.length, '已使用:', usedImages.size, '未使用:', allImages.length - usedImages.size)
+    console.log('已使用的文件:', Array.from(usedImages))
 
     // 找出未使用的图片
     const unusedImages = allImages.filter(image => !usedImages.has(image))
@@ -285,8 +304,8 @@ export class WebStorage implements IStorage {
 
   // ==================== 图片管理器 ====================
 
-  getImageManager(): IImageManager {
-    return this.imageManager
+  getMediaManager(): IMediaManager {
+    return this.mediaManager
   }
 }
 
